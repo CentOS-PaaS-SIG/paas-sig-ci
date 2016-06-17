@@ -1,0 +1,71 @@
+# These macros wrap the duffy-provision tool, making it easy to
+# allocate machines in a Jenkins job, recording in the metadata that
+# the job is claiming a reference on a particular provisioned "class"
+# of machine.
+#
+# A "class" is a tag or group of machines.  Most commonly, you might
+# use this to denote machines which have run a certain system-level
+# Ansible or other provisioning step on them.  For example, you could
+# allow container jobs to reuse classes of type "openshift", and
+# dedicated virt jobs to reuse "libvirt" nodes.
+
+- builder:
+    name: macro-paas-duffy-allocate
+    builders:
+      - shell: |
+          #!/bin/bash
+          set -xeuo pipefail
+          rm -f duffy-allocate.props
+          echo "ORIGIN_WORKSPACE=${{WORKSPACE}}" >> duffy-allocate.props
+          echo "ORIGIN_BUILD_TAG=${{BUILD_TAG}}" >> duffy-allocate.props
+          echo "ORIGIN_CLASS={jobclass}" >> duffy-allocate.props
+      - trigger-builds:
+          - project: paas-duffy-allocate
+            current-parameters: true
+            property-file: duffy-allocate.props
+            predefined-parameters: |
+              DUFFY_OP=--allocate
+            block: true
+            same-node: true
+
+- publisher:
+    name: macro-paas-duffy-deallocate
+    publishers:
+      - trigger-parameterized-builds:
+          - project: paas-duffy-allocate
+            current-parameters: true
+            property-file: duffy-allocate.props
+            predefined-parameters: |
+              DUFFY_OP=--teardown
+            same-node: true
+            block: true
+
+# This singleton job ensures that it's the only thing accessing
+# the cached duffy state.
+- job:
+    name: paas-duffy-allocate
+    defaults: paas-defaults
+    builders:
+      - shell: |
+          #!/bin/bash
+          set -xeuo pipefail
+          if test -n "${ORIGIN_CLASS:-}"; then
+            cd ${ORIGIN_WORKSPACE}
+            exec sig-atomic-buildscripts/centos-ci/duffy-provision ${DUFFY_OP} --class=${ORIGIN_CLASS} --jobid=${ORIGIN_BUILD_TAG}
+          else
+            exec sig-atomic-buildscripts/centos-ci/duffy-provision ${DUFFY_OP}
+          fi
+
+- job:
+    name: paas-duffy-gc
+    defaults: paas-defaults
+    triggers:
+      - timed: '@hourly'
+    builders:
+      - trigger-builds:
+          - project: paas-duffy-allocate
+            current-parameters: true
+            predefined-parameters: |
+              DUFFY_OP=--gc
+            block: true
+            same-node: true

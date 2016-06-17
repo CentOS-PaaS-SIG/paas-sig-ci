@@ -1,0 +1,91 @@
+- defaults:
+    name: paas-defaults
+    node: paas-sig-ci-slave01
+    wrappers:
+      - ansicolor
+      - workspace-cleanup
+      - timestamps
+
+- job:
+    name: paas-get-buildscripts
+    node: paas-sig-ci-slave01
+    quiet-period: 0
+    description: |
+        Test things for the PaaS SIG ##FIXME##
+        JJB Code Location: Somewhere in the ether.
+        Managed by Jenkins Job Builder. Do not edit via web.<br>
+    scm:
+      - git:
+          url: "https://github.com/cgwalters/sig-atomic-buildscripts"
+          basedir: sig-atomic-buildscripts
+          branches:
+            - pr-testing
+
+    wrappers:
+      - ansicolor
+      - workspace-cleanup
+      - timestamps
+
+    builders:
+      - macro-paas-duffy-allocate:
+          jobclass: builder
+      - shell: |
+          #!/bin/bash
+          set -xeuo pipefail
+
+          env GH_STATE=pending sig-atomic-buildscripts/centos-ci/github-status
+
+          cleanup() {
+            GH_STATE=failure
+            if test -f success.stamp; then
+              GH_STATE=success
+            fi
+            export GH_STATE
+            $WORKSPACE/sig-atomic-buildscripts/centos-ci/github-status
+          }
+          trap cleanup EXIT
+
+          cd sig-atomic-buildscripts/centos-ci/setup
+          ansible-playbook -v -i $WORKSPACE/inventory -u root setup-system.yml
+          cd $WORKSPACE
+
+          # From here on out we assume only one node, so we can get interactive
+          # progress in the Jenkins log
+          node=$(grep ci.centos.org inventory | head -1)
+          (echo -n "export RSYNC_PASSWORD=" && cat ~/duffy.key | cut -c '-13') > rsync-password.sh
+          rsync -q -Hrlptv --stats -e ssh sig-atomic-buildscripts ~/github-token.txt rsync-password.sh prbuilder@${node}:
+          build_success=true
+          ssh -tt prbuilder@${node} ./sig-atomic-buildscripts/centos-ci/run-pr-build ${GIT_URL}
+
+          touch success.stamp
+
+- job:
+    name: paas-duffy-test
+    defaults: paas-defaults
+    scm:
+      - git:
+          url: "https://github.com/cgwalters/sig-atomic-buildscripts"
+          basedir: sig-atomic-buildscripts
+          branches:
+            - pr-testing
+    builders:
+      - macro-paas-duffy-allocate:
+          jobclass: duffy-test
+      - shell: |
+          #!/bin/bash
+          set -xeuo pipefail
+          ansible -v -i $WORKSPACE/inventory -u root all -m ping
+      - shell: |
+          #!/bin/sh
+          set -xeuo pipefail
+          sleep 1m
+
+    publishers:
+      - macro-paas-duffy-deallocate
+
+
+# create the jobs using the job templates
+- project:
+    name: paas-testing
+    jobs:
+      - paas-duffy-test
