@@ -1,0 +1,25 @@
+ansible_config: /usr/share/atomic-openshift-utils/ansible.cfg
+ansible_log_path: /tmp/ansible.log
+ansible_ssh_user: root
+hosts:
+{% for host in groups['masters'] %}
+- connect_to: {{ host }}
+  hostname: {{ host }}
+  ip: {{ host }}
+  master: true
+  node: true
+  public_hostname: {{ host }}
+  public_ip: {{ host }}
+{% endfor %}
+{% for host in groups['nodes'] %}
+- connect_to: {{ host }}
+  hostname: {{ host }}
+  ip: {{ host }}
+  node: true
+  public_hostname: {{ host }}
+  public_ip: {{ host }}
+{% endfor %}
+deployment_type: origin
+variant: origin
+variant_version: {{ origin_version }}
+version: v1

@@ -1,0 +1,3 @@
+---
+- include: aosi_install.yml
+#- include: set_docker_registry.yml
