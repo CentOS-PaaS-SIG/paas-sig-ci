@@ -1,0 +1,9 @@
+---
+- include: ../../common/tasks/enable_epel.yml
+- include: clone_oa_from_github.yml
+  when: "'repo_host' in group_names"
+- include: ../../nginx/tasks/simple_nginx_server.yml
+  when: "'repo_host' in group_names"
+- include: build_oa_repo.yml
+  when: "'repo_host' in group_names"
+- include: enable_oa_repo.yml
