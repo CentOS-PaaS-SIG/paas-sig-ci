@@ -1,0 +1,9 @@
+---
+- name: provision duffy instances
+  duffy:
+    state: "present"
+    count: {{ duffy.count }}
+  register: duffy_metadata
+
+- name: write out provisioned resources
+  local_action: copy content="{{ duffy_metadata.stdout }}" dest="/tmp/metadata.json
