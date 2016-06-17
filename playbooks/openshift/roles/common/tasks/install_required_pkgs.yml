@@ -1,0 +1,25 @@
+# Set a var with packages to install as below
+# which is what is currently in defaults/main.yml
+#
+# setup_pkgs:
+# - wget
+# - git
+# - rsync
+# - net-tools
+# - bind-utils
+# - iptables-services
+# - bridge-utils
+# - gcc
+# - python-virtualenv
+# - docker
+# - yum-utils
+#
+# yum update comes in 2.0
+- name: update all packages
+  command: yum update -y
+
+- name: Install packages on masters and nodes
+  yum: name={{ item }} state=present
+  with_items:
+    - "{{ setup_pkgs }}"
+
