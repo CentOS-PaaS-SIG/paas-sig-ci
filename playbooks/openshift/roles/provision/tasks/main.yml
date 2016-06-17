@@ -1,0 +1,13 @@
+---
+- name: provision duffy instances
+  duffy:
+    state: "present"
+    count: 3
+  register: duffy_metadata
+
+- name: write out inventory file
+  template:
+    src: inventory.j2
+    dest: /tmp/duffy.inventory
+    mode: 0644
+
