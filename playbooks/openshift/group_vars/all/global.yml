@@ -1,4 +1,7 @@
 ---
 # Version to setup of origin
 origin_version: 1.1
+# this file stores the duffy ssid
+duffy_session_file: duffy_session.txt
+duffy_inventory_file: duffy.inventory
 

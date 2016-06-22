@@ -8,6 +8,8 @@
 - name: write out inventory file
   template:
     src: inventory.j2
-    dest: /tmp/duffy.inventory
+    dest: "./{{ duffy_inventory_file }}"
     mode: 0644
 
+- name: write out ssid to session file
+  shell: "echo {{ duffy_metadata.ssid }} > ./{{ duffy_session_file }}"
