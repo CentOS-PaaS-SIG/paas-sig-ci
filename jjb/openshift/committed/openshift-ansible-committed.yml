@@ -1,0 +1,131 @@
+- project:
+    name: openshift-origin-committed
+    ocname: openshift-origin-committed
+    repo-subdir: origin
+    site: duffy
+    jslave_name: paas-sig-ci-slave01
+    jslave_username: root
+    provision-pb: $WORKSPACE/linch-pin/provision/site.yml
+    teardown-pb: teardown_nodes.yml
+    inventory-file: linch-pin.inventory
+    topology-file: duffy_3node_cluster.yml
+    prep-playbook: paas-ci/playbooks/openshift/setup.yml
+    install-ansible21: |
+      #!/bin/bash
+      set -xeuo pipefail
+      pip install --upgrade ansible>=2.1.0
+      pip install jsonschema functools32
+
+    configure-ansible: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # create ansible.cfg
+      cat << EOF > ansible.cfg
+      [defaults]
+      remote_user = root
+      library  = $WORKSPACE/linch-pin/library:$WORKSPACE/duffy-ansible-module/library
+
+      EOF
+
+    configure-linchpin: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # create group_vars/all
+      cat << EOF > $WORKSPACE/linch-pin/provision/group_vars/all
+      ---
+      data: $WORKSPACE/linch-pin/duffy_3node_cluster.yml
+      schema: $WORKSPACE/linch-pin/ex_schemas/schema_v2.json
+
+      EOF
+
+    duffy-topology: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      cat << EOF > $WORKSPACE/linch-pin/duffy_3node_cluster.yml
+      ---
+      topology_name: "duffy_3node_cluster" # topology name
+      resource_groups:
+        -
+          resource_group_name: "duffy_3node_cluster"
+          res_group_type: "duffy"
+          res_defs:
+            -
+              res_name: "duffy_3node_cluster"
+              res_type: "duffy"
+              version: 7
+              arch: "x86_64"
+              count: 3
+          assoc_creds: "duffy_creds"
+
+      EOF
+
+    provision-cluster: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # provision cluster
+      cat $WORKSPACE/linch-pin/duffy_3node_cluster.yml
+      cat $WORKSPACE/linch-pin/provision/group_vars/all
+
+      ansible-playbook {provision-pb} -u root -vvv \
+      -e 'state=present'
+
+    prep_cluster: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # see what we have in terms of inventory
+      cat $WORKSPACE/inventory/*.inventory
+      ansible-playbook -u root -vvv -i $WORKSPACE/inventory/ \
+      $WORKSPACE/{prep-playbook}
+
+    teardown-cluster: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # teardown cluster
+      ansible-playbook {provision-pb} -u root -vvv \
+      -e 'state=absent'
+
+    jobs:
+      - openshift-provision-prep-test-teardown
+
+#    prep-cluster: |
+#      #!/bin/bash
+#      set -xeuo pipefail
+#
+#      # Prep cluster
+#      chmod 600 $WORKSPACE/{ssh_keyfile}
+#      ansible-playbook \
+#        -i $WORKSPACE/ci-factory/utils/central_ci_dynamic_hosts.py \
+#        --private-key=$WORKSPACE/{ssh_keyfile} \
+#        --extra-vars "ose_ver=${{OSE_VER}}" \
+#        $WORKSPACE/{prep-playbook}
+#    run-install: |
+#      #!/bin/bash
+#      set -xeuo pipefail
+#
+#      # Run openshift-ansible
+#      chmod 600 $WORKSPACE/{ssh_keyfile}
+#      ansible-playbook \
+#        $WORKSPACE/{oa-playbook}
+#    run-e2e-tests: |
+#      #!/bin/bash
+#      set -xeuo pipefail
+#
+#      # Run e2e tests
+#      chmod 600 $WORKSPACE/{ssh_keyfile}
+#      ansible-playbook \
+#        $WORKSPACE/{run-e2e-tests-pb}
+#    teardown-cluster: |
+#      #!/bin/bash
+#      set -xeuo pipefail
+#
+#      # Run upgrade
+#      ansible-playbook \
+#        -i $WORKSPACE/ci-factory/utils/central_ci_dynamic_hosts.py \
+#        --private-key=$WORKSPACE/{ssh_keyfile} \
+#        $WORKSPACE/{upgrade-ose-pb}
