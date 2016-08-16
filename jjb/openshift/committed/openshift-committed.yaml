@@ -2,41 +2,41 @@
 ## MULTI-JOB TO WRAP AROUND ALL JOBS ##
 #######################################
 
-- job-template:
-    name: '{ocname}-0-multijob'
-    defaults: openshift-defaults
-    concurrent: false
-    node: master
-    project-type: multijob
-    scm:
-        - paas-sig-ci-scm
-    triggers:
-        - timed: "H */6 * * *"
-    builders:
-      - multijob:
-          name: ProvisionCluster
-          condition: SUCCESSFUL
-          projects:
-            - name: '{ocname}-1-provision-cluster'
-              kill-phase-on: FAILURE
-              abort-all-job: true
-              current-parameters: true
-      - multijob:
-          name: PrepCluster
-          condition: SUCCESSFUL
-          projects:
-            - name: '{ocname}-2-prep-cluster'
-              kill-phase-on: FAILURE
-              abort-all-job: true
-              current-parameters: true
-      - multijob:
-          name: TeardownCluster
-          condition: SUCCESSFUL
-          projects:
-            - name: '{ocname}-6-teardown-cluster'
-              kill-phase-on: FAILURE
-              abort-all-job: true
-              current-parameters: true
+#- job-template:
+#    name: '{ocname}-0-multijob'
+#    defaults: openshift-defaults
+#    concurrent: false
+#    node: master
+#    project-type: multijob
+#    scm:
+#        - paas-sig-ci-scm
+#    triggers:
+#        - timed: "H */12 * * *"
+#    builders:
+#      - multijob:
+#          name: ProvisionCluster
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-1-provision-cluster'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
+#      - multijob:
+#          name: PrepCluster
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-2-prep-cluster'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
+#      - multijob:
+#          name: TeardownCluster
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-6-teardown-cluster'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
 #      - multijob:
 #          name: OpenshiftAnsibleRpms
 #          condition: SUCCESSFUL
@@ -53,7 +53,6 @@
 #              kill-phase-on: FAILURE
 #              abort-all-job: true
 #              current-parameters: true
-
 #      - multijob:
 #          name: Provision-Deploy-e2etests
 #          condition: SUCCESSFUL
@@ -64,10 +63,21 @@
 #              current-parameters: true
 
 - job-template:
-    name: '{ocname}-1-provision-cluster'
+    name: '{ocname}-0-test-matrix'
     defaults: openshift-defaults
     concurrent: false
     node: '{jslave_name}'
+    project-type: matrix
+    axes:
+      - axis:
+          type: user-defined
+          name: TOPOLOGY
+          values:
+            - duffy-3node-cluster
+      - axis:
+          type: python
+          values:
+            - system-CPython-2.7
     scm:
       - paas-sig-ci-scm
     builders:
@@ -75,115 +85,64 @@
           build-environment: virtualenv
           python-version: system-CPython-2.7
           name: venv
+          nature: shell
           clear: true
           use-distribute: false
           system-site-packages: true
           command: |
-            {install-ansible21}
-            {configure-ansible}
-            {configure-linchpin}
-            {duffy-topology}
+            {configure-ansible21}
             {provision-cluster}
     publishers:
         - archive:
             artifacts: "**/*.output, **/*.inventory"
             allow-empty: 'false'
 
-- job-template:
-    name: '{ocname}-2-prep-cluster'
-    defaults: openshift-defaults
-    concurrent: false
-    node: '{jslave_name}'
-    scm:
-      - paas-sig-ci-scm
-    builders:
-      - copyartifact:
-          project: '{ocname}-1-provision-cluster'
-          filter: "**/*.inventory"
-          target: $WORKSPACE
-          which-build: multijob-build
-      - shell: |
-          {prep_cluster}
-
-- job-template:
-    name: '{ocname}-6-teardown-cluster'
-    defaults: openshift-defaults
-    concurrent: false
-    node: '{jslave_name}'
-    scm:
-      - paas-sig-ci-scm
-    builders:
-      - copyartifact:
-          project: '{ocname}-1-provision-cluster'
-          filter: "**/*.output"
-          target: $WORKSPACE
-          which-build: multijob-build
-      - shining-panda:
-          build-environment: virtualenv
-          python-version: system-CPython-2.7
-          name: venv
-          clear: true
-          use-distribute: false
-          system-site-packages: true
-          command: |
-            {install-ansible21}
-            {configure-ansible}
-            {configure-linchpin}
-            {duffy-topology}
-            {teardown-cluster}
-
-#######################
-# MATRIX JOB TESTING ##
-# OPENSHIFT_VER      ##
-# CONTANERIZED       ##
-# TOPOLOGY           ##
-#######################
-
 #- job-template:
-#    name: '{ocname}-2-test-matrix'
+#    name: '{ocname}-2-prep-cluster'
 #    defaults: openshift-defaults
 #    concurrent: false
-#    project-type: matrix
-#    execution-strategy:
-#      combination-filter: |
-#        {combo-filter}
+#    node: '{jslave_name}'
 #    scm:
 #      - paas-sig-ci-scm
 #    builders:
-#        - copyartifact:
-#            project: '{ocname}-1-provision-cluster'
-#            filter: '*.inventory'
-#            target: $WORKSPACE
-#            which-build: multijob-build
-#        - shell: |
-#            {prep-cluster}
-#    publishers:
-#        - archive:
-#            artifacts: '*.txt'
-#            allow-empty: 'false'
-#        - teardown-resources
-#
-#        - conditional-step:
-#            condition-kind: regex-match
-#            regex: ^3.[1-9]$
-#            label: ${{ENV,var="OSE_VER"}}
-#            on-evaluation-failure: dont-run
-#            steps:
-#              - shell: |
-#                  {run-e2e-tests}
-#        - conditional-step:
-#            condition-kind: regex-match
-#            regex: ^3.[1-9]$
-#            label: ${{ENV,var="OSE_VER"}}
-#            on-evaluation-failure: dont-run
-#            steps:
-#              - shell: |
-#                  {upgrade-ose}
+#      - copyartifact:
+#          project: '{ocname}-1-provision-cluster'
+#          filter: "**/*.inventory"
+#          target: $WORKSPACE
+#          which-build: multijob-build
+#      - shell: |
+#          {prep_cluster}
+
+- publisher:
+    name: '{ocname}-teardown-cluster'
+    publishers:
+      - postbuildscript:
+          builders:
+            - copyartifact:
+                project: '{ocname}-0-test-matrix'
+                filter: "**/*.output"
+                target: $WORKSPACE
+                which-build: multijob-build
+            - shining-panda:
+                build-environment: virtualenv
+                python-version: system-CPython-2.7
+                name: venv
+                clear: true
+                use-distribute: false
+                system-site-packages: true
+                shell: |
+                  {install-ansible21}
+                shell: |
+                  {configure-ansible}
+                shell: |
+                  {configure-linchpin}
+                shell: |
+                  ${{TOPOLOGY}}
+                shell: |
+                  {teardown-cluster}
+
 
 - job-group:
     name: openshift-provision-prep-test-teardown
     jobs:
-        - '{ocname}-0-multijob'
-        - '{ocname}-1-provision-cluster'
-        - '{ocname}-2-prep-cluster'
-        - '{ocname}-6-teardown-cluster'
+        - '{ocname}-0-test-matrix'

@@ -7,18 +7,13 @@
     jslave_username: root
     provision-pb: $WORKSPACE/linch-pin/provision/site.yml
     teardown-pb: teardown_nodes.yml
-    inventory-file: linch-pin.inventory
-    topology-file: duffy_3node_cluster.yml
+    inventory-layout-file: openshift-3node-inventory.yml
     prep-playbook: paas-ci/playbooks/openshift/setup.yml
-    install-ansible21: |
+    configure-ansible21: |
       #!/bin/bash
       set -xeuo pipefail
       pip install --upgrade ansible>=2.1.0
       pip install jsonschema functools32
-
-    configure-ansible: |
-      #!/bin/bash
-      set -xeuo pipefail
 
       # create ansible.cfg
       cat << EOF > ansible.cfg
@@ -28,50 +23,15 @@
 
       EOF
 
-    configure-linchpin: |
-      #!/bin/bash
-      set -xeuo pipefail
-
-      # create group_vars/all
-      cat << EOF > $WORKSPACE/linch-pin/provision/group_vars/all
-      ---
-      data: $WORKSPACE/linch-pin/duffy_3node_cluster.yml
-      schema: $WORKSPACE/linch-pin/ex_schemas/schema_v2.json
-
-      EOF
-
-    duffy-topology: |
-      #!/bin/bash
-      set -xeuo pipefail
-
-      cat << EOF > $WORKSPACE/linch-pin/duffy_3node_cluster.yml
-      ---
-      topology_name: "duffy_3node_cluster" # topology name
-      resource_groups:
-        -
-          resource_group_name: "duffy_3node_cluster"
-          res_group_type: "duffy"
-          res_defs:
-            -
-              res_name: "duffy_3node_cluster"
-              res_type: "duffy"
-              version: 7
-              arch: "x86_64"
-              count: 3
-          assoc_creds: "duffy_creds"
-
-      EOF
-
     provision-cluster: |
       #!/bin/bash
       set -xeuo pipefail
 
       # provision cluster
-      cat $WORKSPACE/linch-pin/duffy_3node_cluster.yml
-      cat $WORKSPACE/linch-pin/provision/group_vars/all
-
       ansible-playbook {provision-pb} -u root -vvv \
-      -e 'state=present'
+      -e "state=present topology=$WORKSPACE/paas-ci/config/topologies/${{TOPOLOGY}}.yml" \
+      -e "schema=$WORKSPACE/linch-pin/ex_schemas/schema_v2.json" \
+      -e "inventory_layout_file=$WORKSPACE/paas-ci/config/inv_layouts/{inventory-layout-file}"
 
     prep_cluster: |
       #!/bin/bash
@@ -88,7 +48,9 @@
 
       # teardown cluster
       ansible-playbook {provision-pb} -u root -vvv \
-      -e 'state=absent'
+      -e "state=absent topology=$WORKSPACE/paas-ci/config/topologies/${{TOPOLOGY}}.yml" \
+      -e "schema=$WORKSPACE/linch-pin/ex_schemas/schema_v2.json" \
+      -e "inventory_layout_file=$WORKSPACE/paas-ci/config/inv_layouts/{inventory-layout-file}"
 
     jobs:
       - openshift-provision-prep-test-teardown
