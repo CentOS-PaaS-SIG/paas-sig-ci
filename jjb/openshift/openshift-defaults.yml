@@ -26,7 +26,7 @@
             basedir: duffy-ansible-module
             skip-tag: true
         - git:
-            url: 'git://github.com/CentOS-PaaS-SIG/linch-pin.git'
+            url: 'git://github.com/herlo/linch-pin.git'
             branches:
                 - origin/master
             basedir: linch-pin
