@@ -78,6 +78,11 @@
           type: python
           values:
             - system-CPython-2.7
+      - axis:
+         type: slave
+         name: nodes
+         values:
+          - '{jslave_name}'
     scm:
       - paas-sig-ci-scm
     builders:
@@ -92,29 +97,17 @@
           command: |
             {configure-ansible21}
             {provision-cluster}
+      - shell: |
+          {prep-cluster}
     publishers:
         - archive:
-            artifacts: "**/*.output, **/*.inventory"
+            artifacts: "outputs/*.output, inventory/*.inventory"
             allow-empty: 'false'
+        - teardown-cluster
 
-#- job-template:
-#    name: '{ocname}-2-prep-cluster'
-#    defaults: openshift-defaults
-#    concurrent: false
-#    node: '{jslave_name}'
-#    scm:
-#      - paas-sig-ci-scm
-#    builders:
-#      - copyartifact:
-#          project: '{ocname}-1-provision-cluster'
-#          filter: "**/*.inventory"
-#          target: $WORKSPACE
-#          which-build: multijob-build
-#      - shell: |
-#          {prep_cluster}
 
 - publisher:
-    name: '{ocname}-teardown-cluster'
+    name: 'teardown-cluster'
     publishers:
       - postbuildscript:
           builders:
@@ -130,16 +123,11 @@
                 clear: true
                 use-distribute: false
                 system-site-packages: true
-                shell: |
-                  {install-ansible21}
-                shell: |
-                  {configure-ansible}
-                shell: |
-                  {configure-linchpin}
-                shell: |
-                  ${{TOPOLOGY}}
-                shell: |
+                command: |
+                  {configure-ansible21}
                   {teardown-cluster}
+          script-only-if-succeeded: false
+          execute-on: both
 
 
 - job-group:
