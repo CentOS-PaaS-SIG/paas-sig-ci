@@ -68,6 +68,11 @@
     concurrent: false
     node: '{jslave_name}'
     project-type: matrix
+    parameters:
+  - label:
+      name: node
+      default: '{jslave_name}'
+      description: "The node on which to run the job"
     axes:
       - axis:
           type: user-defined
@@ -78,11 +83,6 @@
           type: python
           values:
             - system-CPython-2.7
-      - axis:
-         type: slave
-         name: nodes
-         values:
-          - '{jslave_name}'
     scm:
       - paas-sig-ci-scm
     builders:

@@ -7,7 +7,8 @@
     jslave_username: root
     provision-pb: $WORKSPACE/linch-pin/provision/site.yml
     inventory-layout-file: openshift-3node-inventory.yml
-    prep-playbook: paas-ci/playbooks/openshift/setup.yml
+    prep-pb: paas-ci/playbooks/openshift/setup.yml
+    rfs-pb: paas-ci/playbooks/openshift/repo_from_source.yml
     configure-ansible21: |
       #!/bin/bash
       set -xeuo pipefail
@@ -35,9 +36,8 @@
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      cat $WORKSPACE/inventory/*.inventory
       ansible-playbook -u root -vvv -i $WORKSPACE/inventory/ \
-      $WORKSPACE/{prep-playbook}
+      $WORKSPACE/{prep-pb}
     teardown-cluster: |
       #!/bin/bash
       set -xeuo pipefail
