@@ -1,4 +1,3 @@
 ---
-- include: ../../common/tasks/install_required_pkgs.yml
 - include: setup_docker.yml
 

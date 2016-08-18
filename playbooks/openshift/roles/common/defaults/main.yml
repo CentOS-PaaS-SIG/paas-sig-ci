@@ -1,5 +1,5 @@
 ---
-# file defaults/main.yml
+# file vars/main.yml
 setup_pkgs:
 - wget
 - git
