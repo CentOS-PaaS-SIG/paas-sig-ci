@@ -1,6 +1,0 @@
----
-- hosts: localhost
-  sudo: '{{ sudo | default("no") }}'
-  user: '{{ user | default("root") }}'
-  roles:
-    - teardown
