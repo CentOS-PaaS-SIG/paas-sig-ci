@@ -3,7 +3,7 @@
 
 - name: enable epel repo
   template:
-    src: epel-repo.j2
+    src: roles/common/templates/epel-repo.j2
     dest: "/etc/yum.repos.d/epel.repo"
     mode: 0644
     owner: root
