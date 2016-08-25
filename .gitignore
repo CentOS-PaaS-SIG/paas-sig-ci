@@ -1,0 +1,4 @@
+.fuse_hidden*
+*.py[co]
+*.retry
+.*sw*
