@@ -18,5 +18,4 @@
   sudo: '{{ sudo | default("no") }}'
   user: '{{ user | default("root") }}'
   roles:
-    - common
     - rfs
