@@ -69,10 +69,10 @@
     node: '{jslave_name}'
     project-type: matrix
     parameters:
-  - label:
-      name: node
-      default: '{jslave_name}'
-      description: "The node on which to run the job"
+    - label:
+        name: node
+        default: '{jslave_name}'
+        description: "The node on which to run the job"
     axes:
       - axis:
           type: user-defined
@@ -99,6 +99,8 @@
             {provision-cluster}
       - shell: |
           {prep-cluster}
+      - shell: |
+          {origin-from-source}
     publishers:
         - archive:
             artifacts: "outputs/*.output, inventory/*.inventory"

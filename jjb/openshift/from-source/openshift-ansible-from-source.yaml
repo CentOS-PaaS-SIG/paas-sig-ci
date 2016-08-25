@@ -1,6 +1,6 @@
 - project:
-    name: openshift-origin-committed
-    ocname: openshift-origin-committed
+    name: origin-from-source
+    ocname: origin-from-source
     repo-subdir: origin
     site: duffy
     jslave_name: paas-sig-ci-slave01
@@ -8,7 +8,7 @@
     provision-pb: $WORKSPACE/linch-pin/provision/site.yml
     inventory-layout-file: openshift-3node-inventory.yml
     prep-pb: paas-ci/playbooks/openshift/setup.yml
-    rfs-pb: paas-ci/playbooks/openshift/repo_from_source.yml
+    ofs-pb: paas-ci/playbooks/openshift/origin_from_source.yml
     configure-ansible21: |
       #!/bin/bash
       set -xeuo pipefail
@@ -38,6 +38,13 @@
       # see what we have in terms of inventory
       ansible-playbook -u root -vvv -i $WORKSPACE/inventory/ \
       $WORKSPACE/{prep-pb}
+    origin-from-source: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # see what we have in terms of inventory
+      ansible-playbook -u root -vvv -i $WORKSPACE/inventory/ \
+      $WORKSPACE/{ofs-pb}
     teardown-cluster: |
       #!/bin/bash
       set -xeuo pipefail
