@@ -4,6 +4,12 @@ ansible_log_path: /tmp/ansible.log
 ansible_ssh_user: root
 deployment:
   ansible_ssh_user: root
+{% if openshift_docker_insecure_registries is defined %}
+  openshift_docker_insecure_registries: {{ openshift_docker_insecure_registries }}
+{% endif %}
+{% if openshift_docker_additional_registries is defined %}
+  openshift_docker_additional_registries: {{ openshift_docker_additional_registries }}
+{% endif %}
   hosts:
 {% for host in groups['masters'] %}
     -

@@ -23,9 +23,9 @@ inventory_layout:
     OSEv3:
       vars:
         openshift_docker_additional_registries: |
-            "registry.example.com"
+            "registry.centos.org/openshift/origin"
         openshift_docker_insecure_registries: |
-            "registry.example.com"
+            "registry.centos.org/openshift/origin"
         debug_level: 2
         ansible_sudo: False
         ansible_ssh_user: root
