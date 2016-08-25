@@ -15,9 +15,7 @@ deployment:
     -
       connect_to: "{{ hostvars[host]['openshift_hostname'] }}"
       hostname: "{{ hostvars[host]['openshift_hostname'] }}"
-      ip: "{{ hostvars[host]['openshift_hostname'] }}"
       public_hostname: "{{ host }}"
-      public_ip: "{{ host }}"
       roles:
         - master
         - node
@@ -27,9 +25,7 @@ deployment:
     -
       connect_to: "{{ hostvars[host]['openshift_hostname'] }}"
       hostname: "{{ hostvars[host]['openshift_hostname'] }}"
-      ip: "{{ hostvars[host]['openshift_hostname'] }}"
       public_hostname: "{{ host }}"
-      public_ip: "{{ host }}"
       roles:
         - node
 {% endfor %}
