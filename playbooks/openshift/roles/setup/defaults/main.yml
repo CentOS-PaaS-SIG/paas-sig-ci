@@ -1,0 +1,5 @@
+---
+# file defaults/main.yml for node role
+fileGlob: /tmp/{{ host_label.stdout }}/id_rsa.pub.*
+
+openshift_includepkgs: 'ansible python-httplib2 sshpass python-keyczar python-click'

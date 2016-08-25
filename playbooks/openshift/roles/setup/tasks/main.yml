@@ -1,5 +1,6 @@
 ---
 - include: enable_openshift.yml
-  when: repo_from_source is not defined
+- include: copy_sshkeys.yml
+- include: add_to_auth_keys.yml
 - include: setup_docker.yml
 
