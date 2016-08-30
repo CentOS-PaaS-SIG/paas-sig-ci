@@ -9,6 +9,9 @@
     inventory-layout-file: openshift-3node-inventory.yml
     prep-pb: paas-ci/playbooks/openshift/setup.yml
     ofs-pb: paas-ci/playbooks/openshift/origin_from_source.yml
+    oa-pb: paas-ci/playbooks/openshift/openshift_ansible_from_source.yml
+    aosi-pb: paas-ci/playbooks/openshift/deploy_aosi.yml
+    e2e-pb: paas-ci/playbooks/openshift/run_e2e_tests.yml
     configure-ansible21: |
       #!/bin/bash
       set -xeuo pipefail
@@ -36,15 +39,41 @@
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -vvv -i $WORKSPACE/inventory/ \
+      ansible-playbook -u root -v \
+      -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{prep-pb}
     origin-from-source: |
       #!/bin/bash
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -vvv -i $WORKSPACE/inventory/ \
+      ansible-playbook -u root -v -i $WORKSPACE/inventory/ \
+      -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{ofs-pb}
+    oa-from-source: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # see what we have in terms of inventory
+      ansible-playbook -u root -v \
+      -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
+      $WORKSPACE/{oa-pb}
+    deploy-aosi: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # see what we have in terms of inventory
+      ansible-playbook -u root -v \
+      -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
+      $WORKSPACE/{aosi-pb}
+    run-e2e-tests: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # see what we have in terms of inventory
+      ansible-playbook -u root -v \
+      -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
+      $WORKSPACE/{e2e-pb}
     teardown-cluster: |
       #!/bin/bash
       set -xeuo pipefail

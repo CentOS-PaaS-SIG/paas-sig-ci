@@ -62,17 +62,18 @@
 #              abort-all-job: true
 #              current-parameters: true
 
+#    parameters:
+#      - label:
+#          name: node
+#          default: paas-sig-ci-slave01
+#          description: "The node on which to run the job"
+
 - job-template:
     name: '{ocname}-0-test-matrix'
     defaults: openshift-defaults
     concurrent: false
     node: '{jslave_name}'
     project-type: matrix
-    parameters:
-    - label:
-        name: node
-        default: '{jslave_name}'
-        description: "The node on which to run the job"
     axes:
       - axis:
           type: user-defined
@@ -83,8 +84,15 @@
           type: python
           values:
             - system-CPython-2.7
+      - axis:
+         type: slave
+         name: nodes
+         values:
+          - '{jslave_name}'
     scm:
       - paas-sig-ci-scm
+    triggers:
+        - timed: "H */8 * * *"
     builders:
       - shining-panda:
           build-environment: virtualenv
@@ -101,12 +109,20 @@
           {prep-cluster}
       - shell: |
           {origin-from-source}
+      - shell: |
+          {deploy-aosi}
+      - shell: |
+          {run-e2e-tests}
     publishers:
         - archive:
-            artifacts: "outputs/*.output, inventory/*.inventory"
+            artifacts: "**/*.output, **/.inventory"
             allow-empty: 'false'
-        - teardown-cluster
-
+        - conditional-publisher:
+            - condition-kind: current-status
+              condition-worst: ABORTED
+              condition-best: UNSTABLE
+              action:
+                - teardown-cluster
 
 - publisher:
     name: 'teardown-cluster'
