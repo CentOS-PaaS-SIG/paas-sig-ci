@@ -1,0 +1,10 @@
+---
+# Version to setup of origin
+origin_version: 1.2
+
+# By default, the openshift yum repository is enabled.
+# To disable it, uncomment this line or pass 'repo_from_source=True'
+# via --extra-vars
+
+#repo_from_source: True
+

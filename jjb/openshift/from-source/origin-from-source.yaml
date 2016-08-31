@@ -1,0 +1,154 @@
+#######################################
+## MULTI-JOB TO WRAP AROUND ALL JOBS ##
+#######################################
+
+#- job-template:
+#    name: '{ocname}-0-multijob'
+#    defaults: openshift-defaults
+#    concurrent: false
+#    node: master
+#    project-type: multijob
+#    scm:
+#        - paas-sig-ci-scm
+#    triggers:
+#        - timed: "H */12 * * *"
+#    builders:
+#      - multijob:
+#          name: ProvisionCluster
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-1-provision-cluster'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
+#      - multijob:
+#          name: PrepCluster
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-2-prep-cluster'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
+#      - multijob:
+#          name: TeardownCluster
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-6-teardown-cluster'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
+#      - multijob:
+#          name: OpenshiftAnsibleRpms
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-4-openshift-ansible-rpms'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
+#      - multijob:
+#          name: DeployAOSI
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-5-deploy-aosi'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
+#      - multijob:
+#          name: Provision-Deploy-e2etests
+#          condition: SUCCESSFUL
+#          projects:
+#            - name: '{ocname}-6-test-matrix'
+#              kill-phase-on: FAILURE
+#              abort-all-job: true
+#              current-parameters: true
+
+#    parameters:
+#      - label:
+#          name: node
+#          default: paas-sig-ci-slave01
+#          description: "The node on which to run the job"
+
+- job-template:
+    name: '{ocname}-0-test-matrix'
+    defaults: openshift-defaults
+    concurrent: false
+    node: '{jslave_name}'
+    project-type: matrix
+    axes:
+      - axis:
+          type: user-defined
+          name: TOPOLOGY
+          values:
+            - duffy-3node-cluster
+      - axis:
+          type: python
+          values:
+            - system-CPython-2.7
+      - axis:
+         type: slave
+         name: nodes
+         values:
+          - '{jslave_name}'
+    scm:
+      - paas-sig-ci-scm
+    triggers:
+        - timed: "H */8 * * *"
+    builders:
+      - shining-panda:
+          build-environment: virtualenv
+          python-version: system-CPython-2.7
+          name: venv
+          nature: shell
+          clear: true
+          use-distribute: false
+          system-site-packages: true
+          command: |
+            {configure-ansible21}
+            {provision-cluster}
+      - shell: |
+          {prep-cluster}
+      - shell: |
+          {origin-from-source}
+      - shell: |
+          {deploy-aosi}
+      - shell: |
+          {run-e2e-tests}
+    publishers:
+        - archive:
+            artifacts: "**/*.output, **/*.inventory"
+            allow-empty: 'false'
+        - conditional-publisher:
+            - condition-kind: current-status
+              condition-worst: ABORTED
+              condition-best: UNSTABLE
+              action:
+                - teardown-cluster
+
+- publisher:
+    name: 'teardown-cluster'
+    publishers:
+      - postbuildscript:
+          builders:
+            - copyartifact:
+                project: '{ocname}-0-test-matrix'
+                filter: "**/*.output"
+                target: $WORKSPACE
+                which-build: multijob-build
+            - shining-panda:
+                build-environment: virtualenv
+                python-version: system-CPython-2.7
+                name: venv
+                clear: true
+                use-distribute: false
+                system-site-packages: true
+                command: |
+                  {configure-ansible21}
+                  {teardown-cluster}
+          script-only-if-succeeded: false
+          execute-on: both
+
+
+- job-group:
+    name: openshift-provision-prep-test-teardown
+    jobs:
+        - '{ocname}-0-test-matrix'

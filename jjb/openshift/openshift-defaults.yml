@@ -1,0 +1,46 @@
+- defaults:
+    name: openshift-defaults
+    node: openshift-ansible-slave
+    wrappers:
+        - ansicolor
+        - workspace-cleanup
+        - timestamps
+        - inject:
+            properties-content: |
+                ANSIBLE_SSH_CONTROL_PATH=%(directory)s/%%h-%%r
+                ANSIBLE_HOST_KEY_CHECKING=False
+
+- scm:
+    name: paas-sig-ci-scm
+    scm:
+        - git:
+            url: 'git://github.com/herlo/paas-sig-ci.git'
+            branches:
+                - origin/master
+            basedir: paas-ci
+            skip-tag: true
+        - git:
+            url: 'git://github.com/herlo/duffy-ansible-module.git'
+            branches:
+                - origin/master
+            basedir: duffy-ansible-module
+            skip-tag: true
+        - git:
+            url: 'git://github.com/herlo/linch-pin.git'
+            branches:
+                - origin/master
+            basedir: linch-pin
+            skip-tag: true
+
+## Teardown Resources
+- publisher:
+    name: teardown-resources
+    publishers:
+        - postbuildscript:
+            builders:
+              - shell: |
+                  #!/bin/bash
+                  set -xeuo pipefail
+
+                  ansible-playbook $WORKSPACE/paas-ci/playbooks/openshift/teardown_nodes.yml
+            script-only-if-succeeded: false

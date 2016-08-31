@@ -1,0 +1,8 @@
+---
+- name: Setup openshift testing repo
+  template:
+    src: openshift-repo.j2
+    dest: /etc/yum.repos.d/openshift.repo
+    mode: 0644
+    owner: root
+    group: root
