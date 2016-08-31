@@ -15,6 +15,6 @@
 ---
 - hosts: all
   sudo: '{{ sudo | default("no") }}'
-  user: '{{ user | default("root") }}'
+  remote_user: '{{ user | default("root") }}'
   roles:
     - ofs
