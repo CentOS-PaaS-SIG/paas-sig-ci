@@ -33,6 +33,7 @@
       ansible-playbook {provision-pb} -u root -v \
       -e "topology=$WORKSPACE/paas-ci/config/topologies/${{TOPOLOGY}}.yml" \
       -e "inventory_layout_file=$WORKSPACE/paas-ci/config/inv_layouts/{inventory-layout-file}" \
+      -e "inventory_output_file=$WORKSPACE/inventory/${{TOPOLOGY}}.inventory" \
       -e "schema=$WORKSPACE/linch-pin/ex_schemas/schema_v2.json state=present"
     prep-cluster: |
       #!/bin/bash
