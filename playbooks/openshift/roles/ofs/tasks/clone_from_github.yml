@@ -5,6 +5,10 @@
   register: dot_git_path
 
 - name: git clone origin
-  git: repo=https://github.com/openshift/origin
-      dest={{ openshift_repo_path }} clone=yes update=yes
+  git:
+    repo: https://github.com/openshift/origin
+    dest: "{{ openshift_repo_path }}"
+    clone: yes
+    update: yes
+    accept_hostkey: yes
   when: dot_git_path.stat.isdir is undefined or dot_git_path.stat.isdir == False
