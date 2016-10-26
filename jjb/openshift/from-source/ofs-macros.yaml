@@ -5,6 +5,7 @@
     site: duffy
     jslave_name: paas-sig-ci-slave01
     jslave_username: root
+    lp_sha1: 77e5613227df670efc5e877134fce67432e5e97d
     provision-pb: $WORKSPACE/linch-pin/provision/site.yml
     inventory-layout-file: openshift-3node-inventory.yml
     prep-pb: paas-ci/playbooks/openshift/setup.yml
@@ -29,12 +30,13 @@
       #!/bin/bash
       set -xeuo pipefail
 
+      mkdir -p $WORKSPACE/inventory
+
       # provision cluster
       ansible-playbook {provision-pb} -u root -v \
       -e "topology=$WORKSPACE/paas-ci/config/topologies/${{TOPOLOGY}}.yml" \
       -e "inventory_layout_file=$WORKSPACE/paas-ci/config/inv_layouts/{inventory-layout-file}" \
-      -e "inventory_output_file=$WORKSPACE/inventory/${{TOPOLOGY}}.inventory" \
-      -e "schema=$WORKSPACE/linch-pin/ex_schemas/schema_v2.json state=present"
+      -e "inventory_outputs_path=$WORKSPACE/inventory" -e "state=present"
     prep-cluster: |
       #!/bin/bash
       set -xeuo pipefail

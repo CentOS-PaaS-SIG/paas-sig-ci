@@ -28,7 +28,7 @@
         - git:
             url: 'git://github.com/herlo/linch-pin.git'
             branches:
-                - origin/master
+                - ${lp-sha1}
             basedir: linch-pin
             skip-tag: true
 
