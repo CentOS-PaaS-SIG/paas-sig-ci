@@ -54,15 +54,16 @@
       - shell: |
           {run-e2e-tests}
     publishers:
-        - archive:
-            artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
-            allow-empty: 'false'
-        - conditional-publisher:
-            - condition-kind: current-status
-              condition-worst: ABORTED
-              condition-best: UNSTABLE
-              action:
-                - teardown-cluster
+      - archive:
+          artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
+          allow-empty: 'false'
+      - openshift-email
+      - conditional-publisher:
+          - condition-kind: current-status
+            condition-worst: ABORTED
+            condition-best: UNSTABLE
+            action:
+              - teardown-cluster
 
 - publisher:
     name: 'teardown-cluster'

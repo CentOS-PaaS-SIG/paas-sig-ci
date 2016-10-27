@@ -2,6 +2,7 @@
     name: openshift-defaults
     description: |
         Maintainer: <a href="mailto:herlo@redhat.com>Clint Savage</a>
+        Secondary Maintainer: <a href="mailto:alivigni@redhat.com>Ari LiVigni</a>
         Code Location: http://github.com/CentOS-PaaS-SIG/paas-sig-ci
         IRC: #centos-devel on freenode<br/><br/>
         Mailing List: <a href="mailto:centos-devel@centos.org">CentOS Devel</a>
@@ -21,7 +22,7 @@
             artifact-num-to-keep: 15
         - inject:
             properties-content: |
-              lp_sha1=${lpsha1}
+              lp_sha1={lpsha1}
 
 - scm:
     name: paas-sig-ci-scm
@@ -33,13 +34,13 @@
             basedir: paas-ci
             skip-tag: true
         - git:
-            url: 'git://github.com/herlo/duffy-ansible-module.git'
+            url: 'git://github.com/CentOS-PaaS-SIG/duffy-ansible-module.git'
             branches:
                 - origin/master
             basedir: duffy-ansible-module
             skip-tag: true
         - git:
-            url: 'git://github.com/herlo/linch-pin.git'
+            url: 'git://github.com/CentOS-PaaS-SIG/linch-pin.git'
             branches:
                 - ${lp_sha1}
             basedir: linch-pin
