@@ -1,66 +1,6 @@
-#######################################
-## MULTI-JOB TO WRAP AROUND ALL JOBS ##
-#######################################
-
-#- job-template:
-#    name: '{ocname}-0-multijob'
-#    defaults: openshift-defaults
-#    concurrent: false
-#    node: master
-#    project-type: multijob
-#    scm:
-#        - paas-sig-ci-scm
-#    triggers:
-#        - timed: "H */12 * * *"
-#    builders:
-#      - multijob:
-#          name: ProvisionCluster
-#          condition: SUCCESSFUL
-#          projects:
-#            - name: '{ocname}-1-provision-cluster'
-#              kill-phase-on: FAILURE
-#              abort-all-job: true
-#              current-parameters: true
-#      - multijob:
-#          name: PrepCluster
-#          condition: SUCCESSFUL
-#          projects:
-#            - name: '{ocname}-2-prep-cluster'
-#              kill-phase-on: FAILURE
-#              abort-all-job: true
-#              current-parameters: true
-#      - multijob:
-#          name: TeardownCluster
-#          condition: SUCCESSFUL
-#          projects:
-#            - name: '{ocname}-6-teardown-cluster'
-#              kill-phase-on: FAILURE
-#              abort-all-job: true
-#              current-parameters: true
-#      - multijob:
-#          name: OpenshiftAnsibleRpms
-#          condition: SUCCESSFUL
-#          projects:
-#            - name: '{ocname}-4-openshift-ansible-rpms'
-#              kill-phase-on: FAILURE
-#              abort-all-job: true
-#              current-parameters: true
-#      - multijob:
-#          name: DeployAOSI
-#          condition: SUCCESSFUL
-#          projects:
-#            - name: '{ocname}-5-deploy-aosi'
-#              kill-phase-on: FAILURE
-#              abort-all-job: true
-#              current-parameters: true
-#      - multijob:
-#          name: Provision-Deploy-e2etests
-#          condition: SUCCESSFUL
-#          projects:
-#            - name: '{ocname}-6-test-matrix'
-#              kill-phase-on: FAILURE
-#              abort-all-job: true
-#              current-parameters: true
+############################################
+## MATRIX JOB TO BUILD ORIGIN FROM SOURCE ##
+############################################
 
 #    parameters:
 #      - label:
@@ -79,7 +19,7 @@
           type: user-defined
           name: TOPOLOGY
           values:
-            - duffy-3node-cluster
+            - duffy_3node_cluster
       - axis:
           type: python
           values:
@@ -114,15 +54,16 @@
       - shell: |
           {run-e2e-tests}
     publishers:
-        - archive:
-            artifacts: "**/*.output, **/*.inventory"
-            allow-empty: 'false'
-        - conditional-publisher:
-            - condition-kind: current-status
-              condition-worst: ABORTED
-              condition-best: UNSTABLE
-              action:
-                - teardown-cluster
+      - archive:
+          artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
+          allow-empty: 'false'
+      - openshift-email
+      - conditional-publisher:
+          - condition-kind: current-status
+            condition-worst: ABORTED
+            condition-best: UNSTABLE
+            action:
+              - teardown-cluster
 
 - publisher:
     name: 'teardown-cluster'

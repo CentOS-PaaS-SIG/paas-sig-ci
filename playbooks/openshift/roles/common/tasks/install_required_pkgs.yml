@@ -14,9 +14,8 @@
 # - docker
 # - yum-utils
 #
-# yum update comes in 2.0
 - name: update all packages
-  command: yum update -y
+  yum: name=* state=latest
 
 - name: Install packages on masters and nodes
   yum: name={{ item }} state=present

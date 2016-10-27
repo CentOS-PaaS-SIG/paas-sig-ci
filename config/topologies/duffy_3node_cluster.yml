@@ -2,7 +2,7 @@
 topology_name: "duffy_3node_cluster" # topology name
 resource_groups:
   -
-    resource_group_name: "duffy_3node_cluster"
+    resource_group_name: "duffy_3node_group"
     res_group_type: "duffy"
     res_defs:
       -
