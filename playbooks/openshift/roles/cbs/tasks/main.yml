@@ -1,0 +1,6 @@
+---
+# tasks file for cbs
+- include: enable_centos_extras.yml
+  when: "'repo_host' in group_names"
+- include: install_required_pkgs.yml
+  when: "'repo_host' in group_names"

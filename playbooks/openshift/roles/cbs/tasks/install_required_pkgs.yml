@@ -4,10 +4,9 @@
 - name: update all packages
   yum: name=* state=latest
 
-- name: Install packages on masters and nodes
+- name: Install packages on repo_host in group_vars
   yum:
     name: "{{ item }}"
     state: present
   with_items:
-    - "{{ setup_pkgs }}"
-
+    - "centos_packager"
