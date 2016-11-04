@@ -28,7 +28,7 @@
     name: paas-sig-ci-scm
     scm:
         - git:
-            url: 'git://github.com/herlo/paas-sig-ci.git'
+            url: 'git://github.com/CentOS-PaaS-SIG/paas-sig-ci.git'
             branches:
                 - origin/master
             basedir: paas-ci

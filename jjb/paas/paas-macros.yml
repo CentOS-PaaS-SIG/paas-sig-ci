@@ -4,7 +4,8 @@
     site: duffy
     jslave_name: paas-sig-ci-slave01
     jslave_username: root
-    lpsha1: 77e5613227df670efc5e877134fce67432e5e97d
+    #lpsha1: 77e5613227df670efc5e877134fce67432e5e97d
+    lpsha1: b566092f40520f5ab43e131d1c464f6cc22eb03b
     provision-pb: $WORKSPACE/linch-pin/provision/site.yml
     inventory-layout-file: openshift-3node-inventory.yml
     prep-pb: paas-ci/playbooks/openshift/setup.yml

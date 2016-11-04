@@ -50,7 +50,7 @@
       - shell: |
           {bfs-origin}
       - shell: |
-          {bfs-origin}
+          {bfs-openshift-ansible}
       - shell: |
           {deploy-aosi}
       - shell: |
