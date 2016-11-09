@@ -53,7 +53,7 @@
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{bfs-pb} \
       -e "repo_from_source=true" \
-      -e "project=origin"
+      -e "project.name=origin"
     bfs-openshift-ansible: |
       #!/bin/bash
       set -xeuo pipefail
@@ -63,7 +63,7 @@
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{bfs-pb} \
       -e "repo_from_source=true" \
-      -e "project=openshift-ansible"
+      -e "project.name=openshift-ansible"
     deploy-aosi: |
       #!/bin/bash
       set -xeuo pipefail

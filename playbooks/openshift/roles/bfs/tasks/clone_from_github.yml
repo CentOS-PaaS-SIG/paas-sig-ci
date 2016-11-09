@@ -6,7 +6,7 @@
 
 - name: git clone origin
   git:
-    repo: https://github.com/openshift/{{ project }}
+    repo: https://github.com/openshift/{{ project.name }}
     dest: "{{ openshift_repo_path }}"
     clone: yes
     update: yes

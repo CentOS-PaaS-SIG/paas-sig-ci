@@ -11,9 +11,9 @@
   notify:
     - reload nginx
 
-- name: Create {{ web_docroot }}/{{ project }}/{{ arch }}
+- name: Create {{ web_docroot }}/{{ project.name }}/{{ arch }}
   file:
-    path: "{{ web_docroot }}/{{ project }}/{{ arch }}"
+    path: "{{ web_docroot }}/{{ project.name }}/{{ arch }}"
     state: directory
     owner: nginx
     group: nginx

@@ -35,5 +35,5 @@ deployment:
     etcd:
 deployment_type: origin
 variant: origin
-variant_version: {{ origin_version }}
+variant_version: {{ project.version.split('.')[0] }}.{{ project.version.split('.')[1] }}
 version: v2
