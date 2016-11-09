@@ -1,5 +1,5 @@
 - name: set latest tag from git tag
-  shell: "git tag | grep {{ project.name }}-{{ project.version }} | cut -d'.' -f3 | sort -n | tail -n1"
+  shell: "git tag | grep {{ project }}-{{ version }} | cut -d'.' -f3 | sort -n | tail -n1"
   args:
     chdir: "{{ openshift_repo_path }}"
   register: LATEST_TAG
@@ -7,8 +7,8 @@
 - debug:
     msg: "PaaS-sig Props: {{ item.prop }} [ {{ item.value }} ]"
   with_items:
-    - { prop: 'project', value: "{{ project.name }}" }
-    - { prop: 'version', value: "{{ project.version }}" }
+    - { prop: 'project', value: "{{ project }}" }
+    - { prop: 'version', value: "{{ version }}" }
     - { prop: 'latest_tag', value: "{{ LATEST_TAG.stdout }}" }
 
 - name: Check if changes have been applied
