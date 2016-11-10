@@ -20,7 +20,7 @@
 
 - name: update variant
   lineinfile:
-    dest: ./{{ openshift_repo_path }}/utils/src/ooinstall/variants.py
+    dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
     regexp: "^DISPLAY_VARIANTS =.*"
     line: "DISPLAY_VARIANTS = (origin, OSE, REG,)"
     backrefs: yes
