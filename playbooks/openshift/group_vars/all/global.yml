@@ -1,6 +1,15 @@
 ---
+# project - name and version
+# options:
+#   project: origin
+#   project: openshift-ansible
+project: origin
+
+# Version to setup of project
+version: 1.3.0
+
 # Version to setup of origin
-origin_version: 1.3
+origin_version: 1.3.0
 
 # Version of openshift-ansible
 oa_version: 3.3
