@@ -43,7 +43,7 @@
       # see what we have in terms of inventory
       ansible-playbook -u root -v \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
-      $WORKSPACE/{prep-pb}
+      $WORKSPACE/{prep-pb} -e "repo_from_source=true"
     bfs-origin: |
       #!/bin/bash
       set -xeuo pipefail
