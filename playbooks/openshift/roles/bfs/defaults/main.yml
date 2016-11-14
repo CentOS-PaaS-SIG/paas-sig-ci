@@ -13,3 +13,9 @@ pkgs_to_exclude: "atomic-openshift atomic-openshift-clients atomic-openshift-doc
 
 # Architecture
 arch: x86_64
+
+# Directory where repo will be created
+web_docroot: /srv/www
+
+# Cleanup before building {{ project }} from source
+cleanup: false
