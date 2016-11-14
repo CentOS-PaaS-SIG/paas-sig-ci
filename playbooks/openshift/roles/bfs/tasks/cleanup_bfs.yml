@@ -1,0 +1,10 @@
+---
+- name: Remove source for "{{ project }}"
+  file:
+    path: "{{ openshift_repo_path }}"
+    state: absent
+
+- name: Remove source for "{{ web_docroot }}/{{ project }}"
+  file:
+    path: "{{ web_docroot }}/{{ project }}"
+    state: absent

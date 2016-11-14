@@ -1,4 +1,6 @@
 ---
+- include: cleanup_bfs.yml
+  when: "'repo_host' in group_names and cleanup"
 - include: clone_from_github.yml
   when: "'repo_host' in group_names"
 - include: enable_openshift-future_repo.yml
