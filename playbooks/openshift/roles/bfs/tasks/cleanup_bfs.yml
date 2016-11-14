@@ -7,4 +7,5 @@
 - name: Remove source for "{{ web_docroot }}/{{ project }}"
   file:
     path: "{{ web_docroot }}/{{ project }}"
+    recurse: no
     state: absent
