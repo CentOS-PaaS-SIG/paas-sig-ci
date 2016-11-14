@@ -9,3 +9,11 @@
     path: "{{ web_docroot }}/{{ project }}"
     recurse: no
     state: absent
+
+- name: Create {{ web_docroot }}/{{ project }}/{{ arch }}
+  file:
+    path: "{{ web_docroot }}/{{ project }}/{{ arch }}"
+    state: directory
+    owner: nginx
+    group: nginx
+    setype: httpd_sys_content_t
