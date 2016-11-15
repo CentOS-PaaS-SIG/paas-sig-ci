@@ -16,6 +16,8 @@
             properties-content: |
                 ANSIBLE_SSH_CONTROL_PATH=%(directory)s/%%h-%%r
                 ANSIBLE_HOST_KEY_CHECKING=False
+                ORIGIN_VERSION=1.3.0
+                OA_VERSION=3.3
     properties:
         - build-discarder:
             num-to-keep: 50
