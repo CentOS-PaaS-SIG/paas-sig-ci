@@ -18,6 +18,12 @@
   ignore_errors: yes
   register: git_log
 
+- name: Checkout openshift-ansible version and latest tag
+  shell: "git checkout {{ project }}-{{ version }}.{{ LATEST_TAG.stdout }}"
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  when: git_log.stdout == ""
+
 - name: update variant
   lineinfile:
     dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
