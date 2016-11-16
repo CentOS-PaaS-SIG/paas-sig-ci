@@ -54,7 +54,7 @@
       $WORKSPACE/{bfs-pb} \
       -e "repo_from_source=true" \
       -e "project=origin" \
-      -e "version=${{ORIGIN_VERSION}}
+      -e "version=${{ORIGIN_VERSION}}"
     prep-cluster-openshift-ansible: |
       #!/bin/bash
       set -xeuo pipefail
@@ -73,8 +73,8 @@
       $WORKSPACE/{bfs-pb} \
       -e "repo_from_source=true" \
       -e "project=openshift-ansible" \
-      -e "version=${{OA_VERSION}} \
-      -e "arch=noarch
+      -e "version=${{OA_VERSION}}" \
+      -e "arch=noarch"
     deploy-aosi: |
       #!/bin/bash
       set -xeuo pipefail
