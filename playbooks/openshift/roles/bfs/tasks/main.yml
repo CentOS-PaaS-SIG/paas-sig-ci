@@ -3,8 +3,6 @@
   when: "'repo_host' in group_names and cleanup"
 - include: clone_from_github.yml
   when: "'repo_host' in group_names"
-- include: enable_openshift-future_repo.yml
-  when: "'repo_host' in group_names"
 - include: build_origin_repo.yml
   when: "'repo_host' in group_names and project == 'origin'"
 - include: build_openshift-ansible_repo.yml
