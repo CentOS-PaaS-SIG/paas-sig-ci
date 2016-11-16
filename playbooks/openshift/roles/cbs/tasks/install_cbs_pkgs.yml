@@ -1,0 +1,7 @@
+---
+- name: Install packages on repo_host in group_vars for cbs
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "centos-packager"
