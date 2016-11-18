@@ -24,6 +24,15 @@
     chdir: "{{ openshift_repo_path }}"
   when: git_log.stdout == ""
 
+- name: update version of origin
+  lineinfile:
+    dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
+    regexp: "Version\\('1\\.2', 'origin'\\).*"
+    line: "                     Version('{{ origin_version }}', 'origin')"
+    backrefs: yes
+    state: present
+  when: git_log.stdout == ""
+
 - name: update variant
   lineinfile:
     dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
