@@ -18,4 +18,4 @@ oa_version: 3.3
 repo_from_source: false
 
 # Packages to include for master node
-openshift_origin_common_pkgs: 'docker* kompose openvswitch python-click python-httplib2 python-keyczar python-openvswitch python-paramiko sshpass'
+openshift_origin_common_pkgs: 'docker* kompose openvswitch* python-click python-httplib2 python-keyczar python-openvswitch python-paramiko sshpass'
