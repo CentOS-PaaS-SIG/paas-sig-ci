@@ -8,9 +8,6 @@ project: origin
 # Path to repo for {{ project }}
 openshift_repo_path: /root/{{ project }}
 
-# Packages to exclude
-pkgs_to_exclude: "atomic-openshift atomic-openshift-clients atomic-openshift-dockerregistry atomic-openshift-master atomic-openshift-node atomic-openshift-pod atomic-openshift-recycle atomic-openshift-sdn-ovs atomic-openshift-tests tuned-profiles-atomic-openshift-node"
-
 # Architecture
 arch: x86_64
 
