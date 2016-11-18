@@ -1,8 +1,0 @@
-[openshift-testing]
-name=CentOS openshift-testing repo
-baseurl="http://buildlogs.centos.org/centos/7/paas/x86_64/openshift-origin/"
-enabled=1
-gpgcheck=0
-{% if ( (repo_from_source is defined) and (project == 'origin') ) %}
-exclude=*origin*
-{% endif %}
