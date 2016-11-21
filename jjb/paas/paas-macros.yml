@@ -11,6 +11,7 @@
     bfs-pb: paas-ci/playbooks/openshift/bfs.yml
     deploy-aosi-pb: paas-ci/playbooks/openshift/deploy_aosi.yml
     run-e2e-pb: paas-ci/playbooks/openshift/run_e2e_tests.yml
+    cbs-pb: paas-ci/playbooks/openshift/cbs.yml
     configure-ansible21: |
       #!/bin/bash
       set -xeuo pipefail
@@ -35,15 +36,14 @@
       -e "topology=$WORKSPACE/paas-ci/config/topologies/${{TOPOLOGY}}.yml" \
       -e "inventory_layout_file=$WORKSPACE/paas-ci/config/inv_layouts/{inventory-layout-file}" \
       -e "inventory_outputs_path=$WORKSPACE/inventory" -e "state=present"
-    prep-cluster-origin: |
+    prep-cluster: |
       #!/bin/bash
       set -xeuo pipefail
 
       # see what we have in terms of inventory
       ansible-playbook -u root -v \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
-      $WORKSPACE/{prep-pb} -e "repo_from_source=true" \
-      -e "project=origin"
+      $WORKSPACE/{prep-pb} -e "repo_from_source=true"
     bfs-origin: |
       #!/bin/bash
       set -xeuo pipefail
@@ -55,14 +55,6 @@
       -e "repo_from_source=true" \
       -e "project=origin" \
       -e "version=${{ORIGIN_VERSION}}"
-    prep-cluster-openshift-ansible: |
-      #!/bin/bash
-      set -xeuo pipefail
-
-      # see what we have in terms of inventory
-      ansible-playbook -u root -v \
-      -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
-      $WORKSPACE/{prep-pb} -e "repo_from_source=true"
     bfs-openshift-ansible: |
       #!/bin/bash
       set -xeuo pipefail
@@ -91,6 +83,22 @@
       ansible-playbook -u root -v \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{run-e2e-pb}
+    cbs-origin: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # see what we have in terms of inventory
+      ansible-playbook -u root -v \
+      -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
+      $WORKSPACE/{cbs-pb} -e "project=origin"
+    cbs-openshift-ansible: |
+      #!/bin/bash
+      set -xeuo pipefail
+
+      # see what we have in terms of inventory
+      ansible-playbook -u root -v \
+      -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
+      $WORKSPACE/{cbs-pb} -e "project=openshift-ansible"
     teardown-cluster: |
       #!/bin/bash
       set -xeuo pipefail
@@ -100,9 +108,7 @@
       -e "topology=$WORKSPACE/paas-ci/config/topologies/${{TOPOLOGY}}.yml" \
       -e "schema=$WORKSPACE/linch-pin/ex_schemas/schema_v2.json state=absent"
     jobs:
-      - paas-bfs-origin-provision-prep-test-teardown
-      - paas-bfs-oa-provision-prep-test-teardown
-
+      - paas-bfs-provision-prep-test-teardown
 
 - project:
     name: paas-committed

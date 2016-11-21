@@ -1,0 +1,14 @@
+---
+- name: build srpm
+  shell: tito build --offline --srpm
+  args:
+    chdir: "{{ openshift_repo_path }}"
+
+- name: "find {{ project }} srpm"
+  shell: "ls {{ project }}*.src.rpm"
+  args:
+    chdir: "/tmp/tito/"
+  register: srpm
+
+- name: "cbs built target for {{ project }} from srpm"
+  shell: "cbs build {{ cbs_target }} /tmp/tito/{{ srpm.stdout }}"
