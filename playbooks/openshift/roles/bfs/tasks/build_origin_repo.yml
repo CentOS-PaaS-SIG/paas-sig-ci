@@ -5,7 +5,7 @@
     - { prop: 'version', value: "{{ version }}" }
 
 - name: Check if changes have already been applied
-  shell: "git log -n1 | grep 'Fixup spec file - {{ version }}'"
+  shell: "git log -n1 | grep 'Fixup spec file - v{{ version }}'"
   args:
     chdir: "{{ openshift_repo_path }}"
   ignore_errors: yes
@@ -50,7 +50,7 @@
     state: present
 
 - name: git commit changes locally
-  shell: git commit -m "Fixup spec file v{{ version }}" origin.spec
+  shell: git commit -m "Fixup spec file - v{{ version }}" origin.spec
   args:
     chdir: "{{ openshift_repo_path }}"
   when: git_log.stdout == ""
