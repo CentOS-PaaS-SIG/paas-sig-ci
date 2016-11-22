@@ -66,6 +66,7 @@
       -e "repo_from_source=true" \
       -e "project=openshift-ansible" \
       -e "version=${{OA_VERSION}}" \
+      -e "origin_version=${{ORIGIN_VERSION}}" \
       -e "arch=noarch"
     deploy-aosi: |
       #!/bin/bash
@@ -74,7 +75,8 @@
       # see what we have in terms of inventory
       ansible-playbook -u root -v \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
-      $WORKSPACE/{deploy-aosi-pb}
+      $WORKSPACE/{deploy-aosi-pb} \
+      -e "version=${{ORIGIN_VERSION}}"
     run-e2e-tests: |
       #!/bin/bash
       set -xeuo pipefail
