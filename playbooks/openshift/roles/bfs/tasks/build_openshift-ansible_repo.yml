@@ -28,7 +28,7 @@
   lineinfile:
     dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
     regexp: "Version\\('1\\.2', 'origin'\\).*"
-    line: "                     Version('{{ origin_version.split('.')[0] }}.{{ origin_version.split('.')[1] }}', 'origin')"
+    line: "                     Version('{{ origin_version }}', 'origin')"
     backrefs: yes
     state: present
   when: git_log.stdout == ""
