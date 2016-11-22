@@ -6,13 +6,13 @@
 project: origin
 
 # Version to setup of project
-version: 1.3.0
+version: 1.4.0
 
 # version to setup of origin
-origin_version: 1.3.0
+origin_version: 1.4.0
 
 # version of openshift-ansible
-oa_version: 3.3
+oa_version: 3.4
 
 # building repo from source
 repo_from_source: false
