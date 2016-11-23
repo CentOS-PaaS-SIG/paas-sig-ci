@@ -92,7 +92,8 @@
       # see what we have in terms of inventory
       ansible-playbook -u root -v \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
-      $WORKSPACE/{cbs-pb} -e "project=origin"
+      $WORKSPACE/{cbs-pb} -e "project=origin" \
+      -e "scratch=true"
     cbs-openshift-ansible: |
       #!/bin/bash
       set -xeuo pipefail
@@ -100,7 +101,8 @@
       # see what we have in terms of inventory
       ansible-playbook -u root -v \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
-      $WORKSPACE/{cbs-pb} -e "project=openshift-ansible"
+      $WORKSPACE/{cbs-pb} -e "project=openshift-ansible" \
+      -e "scratch=true"
     teardown-cluster: |
       #!/bin/bash
       set -xeuo pipefail
