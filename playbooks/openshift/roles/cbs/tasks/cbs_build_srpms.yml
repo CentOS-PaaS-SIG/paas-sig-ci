@@ -7,3 +7,8 @@
 
 - name: "cbs built target for {{ project }} from srpm"
   shell: "cbs build {{ cbs_target }} {{ tito_output.stdout.split(' ')[1] }}"
+  when: not scratch
+
+- name: "cbs built target for {{ project }} from srpm"
+  shell: "cbs build --scratch {{ cbs_target }} {{ tito_output.stdout.split(' ')[1] }}"
+  when: scratch
