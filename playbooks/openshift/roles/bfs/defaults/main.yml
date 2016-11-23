@@ -2,6 +2,7 @@
 # file defaults/{{ project }}
 # Build project from source
 repo_from_source: false
+
 # Project for sig-paas: origin or openshift-ansible
 project: origin
 

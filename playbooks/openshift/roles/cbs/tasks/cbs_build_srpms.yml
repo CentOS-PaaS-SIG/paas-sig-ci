@@ -1,0 +1,9 @@
+---
+- name: build srpm with tito
+  shell: tito build --offline --srpm --rpmbuild-options="--define 'dist .el7'" | grep 'src.rpm'
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  register: tito_output
+
+- name: "cbs built target for {{ project }} from srpm"
+  shell: "cbs build {{ cbs_target }} {{ tito_output.stdout.split(' ')[1] }}"
