@@ -53,8 +53,12 @@
           {bfs-openshift-ansible}
       - shell: |
           {deploy-aosi}
+#      - shell: |
+#          {run-e2e-tests}
       - shell: |
-          {run-e2e-tests}
+          {cbs-origin}
+      - shell: |
+          {cbs-openshift-ansible}
     publishers:
       - archive:
           artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
