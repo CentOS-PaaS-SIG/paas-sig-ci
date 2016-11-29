@@ -1,13 +1,12 @@
 - defaults:
     name: openshift-defaults
     description: |
-        Maintainer: <a href="mailto:herlo@redhat.com>Clint Savage</a>
-        Secondary Maintainer: <a href="mailto:alivigni@redhat.com>Ari LiVigni</a>
-        Code Location: http://github.com/CentOS-PaaS-SIG/paas-sig-ci
-        IRC: #centos-devel on freenode<br/><br/>
-        Mailing List: <a href="mailto:centos-devel@centos.org">CentOS Devel</a>
+        Maintainer: <a href="mailto:herlo@redhat.com>Clint Savage</a><br/>
+        Secondary Maintainer: <a href="mailto:alivigni@redhat.com>Ari LiVigni</a><br/><br/>
+        Code Location: http://github.com/CentOS-PaaS-SIG/paas-sig-ci<br/>
+        IRC: #centos-devel on freenode<br/>
+        Mailing List: <a href="mailto:centos-devel@centos.org">CentOS Devel</a><br/>
         Managed by Jenkins Job Builder. Do not edit via the web interface.
-    node: openshift-ansible-slave
     wrappers:
         - ansicolor
         - workspace-cleanup
@@ -16,8 +15,7 @@
             properties-content: |
                 ANSIBLE_SSH_CONTROL_PATH=%(directory)s/%%h-%%r
                 ANSIBLE_HOST_KEY_CHECKING=False
-                ORIGIN_VERSION=1.4.0-rc1
-                OA_VERSION=3.4
+
     properties:
         - build-discarder:
             num-to-keep: 50
@@ -47,6 +45,23 @@
                 - ${lp_sha1}
             basedir: linch-pin
             skip-tag: true
+
+- scm:
+    name: openshift-scm
+    scm:
+        - git:
+            url: 'git://github.com/openshift/origin.git'
+            branches:
+                - origin/master
+            basedir: origin
+            skip-tag: true
+        - git:
+            url: 'git://github.com/openshift/openshift-ansible.git'
+            branches:
+                - origin/master
+            basedir: openshift-ansible
+            skip-tag: true
+
 
 - publisher:
     name: openshift-email

@@ -4,7 +4,7 @@
 - include: clone_from_github.yml
   when: "'repo_host' in group_names"
 - include: build_origin_repo.yml
-  when: "'repo_host' in group_names and project == 'origin'"
+  when: "'repo_host' in group_names and project == 'origin' and not bleeding_edge"
 - include: build_openshift-ansible_repo.yml
   when: "'repo_host' in group_names and project == 'openshift-ansible'"
 - include: build_openshift_repo.yml
