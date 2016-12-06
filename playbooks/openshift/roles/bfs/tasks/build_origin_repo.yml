@@ -15,13 +15,13 @@
   shell: git checkout v{{ version }}
   args:
     chdir: "{{ openshift_repo_path }}"
-  when: git_log.stdout == ""
+  when: (git_log.stdout == "" and not bleeding_edge)
 
 - name: tag origin version
   shell: git tag -d v{{ version }}
   args:
     chdir: "{{ openshift_repo_path }}"
-  when: git_log.stdout == ""
+  when: (git_log.stdout == "" and not bleeding_edge)
 
 - name: update git vars in origin.spec
   lineinfile:

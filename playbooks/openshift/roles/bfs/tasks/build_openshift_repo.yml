@@ -13,7 +13,7 @@
     chdir: "{{ openshift_repo_path }}"
 
 - name: tag build if origin
-  shell: tito tag --use-version={{ version.split('-')[0] }} --changelog="Update to v{{ version }}" --accept-auto-changelog
+  shell: tito tag --keep-version --changelog="Update to v{{ version }}" --accept-auto-changelog
   args:
     chdir: "{{ openshift_repo_path }}"
   register: pkgs_built
