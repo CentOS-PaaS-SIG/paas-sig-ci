@@ -1,2 +1,3 @@
 - name: Install atomic-openshift-tests
-  yum: name=origin-tests state=present
+  dnf: name=origin-tests state=present
+  delegate_to: localhost
