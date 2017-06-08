@@ -1,2 +1,12 @@
 - name: Install atomic-openshift-tests
-  yum: name=origin-tests state=present
+  yum:
+    name: origin-tests
+    state: present
+  when: containerrun == "false"
+
+- name: Install atomic-openshift-tests
+  dnf:
+    name: origin-tests
+    state: present
+  delegate_to: localhost
+  when: containerrun == "true"
