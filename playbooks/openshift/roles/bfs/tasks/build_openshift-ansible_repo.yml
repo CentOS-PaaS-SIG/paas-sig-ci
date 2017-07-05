@@ -11,14 +11,14 @@
     - { prop: 'version', value: "{{ version }}" }
     - { prop: 'latest_tag', value: "{{ LATEST_TAG.stdout }}" }
 
-- name: Check if changes have been applied
+- name: check if changes have been applied
   shell: "git log -n1 | grep 'Update variants for origin - {{ LATEST_TAG.stdout }}'"
   args:
     chdir: "{{ openshift_repo_path }}"
   ignore_errors: yes
   register: git_log
 
-- name: Checkout openshift-ansible version and latest tag
+- name: checkout openshift-ansible version and latest tag
   shell: "git checkout {{ project }}-{{ version }}.{{ LATEST_TAG.stdout }}"
   args:
     chdir: "{{ openshift_repo_path }}"
