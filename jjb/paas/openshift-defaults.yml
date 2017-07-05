@@ -66,13 +66,13 @@
     name: openshift-email
     publishers:
       - email-ext:
-          recipients: herlo@redhat.com,tdawson@redhat.com
-          reply-to: $DEFAULT_REPLYTO
+          recipients: sdodson@redhat.com, tdawson@redhat.com, jdetiber@redhat.com
+          reply-to: ari@redhat.com
           content-type: default
           subject: $DEFAULT_SUBJECT CentOS-PaaS-SIG
           body: $DEFAULT_CONTENT
-          attach-build-log: false
-          always: false
+          attach-build-log: true
+          always: true
           unstable: false
           first-failure: true
           not-built: false
