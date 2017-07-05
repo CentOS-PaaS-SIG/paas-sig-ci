@@ -24,16 +24,16 @@
 - name: set cbs_target to paas7-openshift-future-el7 for bleeding_edge
   set_fact:
     cbs_target: paas7-openshift-future-el7
-  when: bleeding_edge
+  when: bleeding_edge|bool == true
 
 - name: "cbs build target for {{ project }} from srpm"
   shell: "cbs build --wait {{ cbs_target }} {{ srpm }}"
   args:
     chdir: "{{ openshift_repo_path }}"
-  when: not scratch
+  when: scratch|bool == false
 
 - name: "cbs build scratch target for {{ project }} from srpm"
   shell: "cbs build --wait --scratch {{ cbs_target }} {{ srpm }}"
   args:
     chdir: "{{ openshift_repo_path }}"
-  when: scratch
+  when: scratch|bool == true
