@@ -12,13 +12,6 @@
   args:
     chdir: "{{ openshift_repo_path }}"
 
-- name: tag build if origin
-  shell: tito tag --keep-version --changelog="Update to v{{ version }}" --accept-auto-changelog
-  args:
-    chdir: "{{ openshift_repo_path }}"
-  register: pkgs_built
-  when: project == "origin"
-
 - name: build packages
   shell: tito build --test --rpm --rpmbuild-options="--define 'dist .el7'" --output={{ web_docroot }}/{{ project }}
   args:

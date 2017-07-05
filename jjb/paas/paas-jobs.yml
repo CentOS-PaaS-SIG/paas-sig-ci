@@ -2,17 +2,29 @@
 ## MATRIX JOB TO BUILD FROM SOURCE FOR FUTURE CANDIDATE BUILDS ##
 #################################################################
 
-#    parameters:
-#      - label:
-#          name: node
-#          default: paas-sig-ci-slave01
-#          description: "The node on which to run the job"
 
 - job-template:
-    name: '{paas-bfs-future-candidate-name}-0-test-matrix'
+    name: '{paas-bfs-name}-candidate-matrix'
     defaults: openshift-defaults
     concurrent: false
     node: '{jslave_name}'
+    parameters:
+      - string:
+          name: ORIGIN_VERSION
+          default: '3.6.0-alpha.2'
+          description: origin version
+      - string:
+          name: OA_VERSION
+          default: '3.6'
+          description: openshift-ansible version
+      - bool:
+          name: SCRATCH
+          default: true
+          description: build in CBS as a scratch build
+      - bool:
+          name: BE
+          default: false
+          description: build from the master branch
     project-type: matrix
     axes:
       - axis:
@@ -49,199 +61,123 @@
           {bfs-origin}
       - shell: |
           {bfs-openshift-ansible}
-      - shell: |
-          {deploy-aosi}
-#      - shell: |
-#          {run-e2e-tests}
-      - shell: |
-          {cbs-origin}
-      - shell: |
-          {cbs-openshift-ansible}
-    publishers:
-      - archive:
-          artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
-          allow-empty: 'false'
-      - openshift-email
-      - postbuildscript:
-          builders:
-            - shining-panda:
-                build-environment: virtualenv
-                python-version: system-CPython-2.7
-                name: venv
-                clear: true
-                use-distribute: false
-                system-site-packages: true
-                command: |
-                  {configure-ansible21}
-                  {teardown-cluster}
-          script-only-if-succeeded: false
-          execute-on: axes
-
-
-#################################################################
-## MATRIX JOB TO BUILD FROM SOURCE FOR FUTURE CANDIDATE BUILDS ##
-#################################################################
-
-#    parameters:
-#      - label:
-#          name: node
-#          default: paas-sig-ci-slave01
-#          description: "The node on which to run the job"
-
-- job-template:
-    name: '{paas-bfs-master-name}-0-test-matrix'
-    defaults: openshift-defaults
-    concurrent: false
-    node: '{jslave_name}'
-    project-type: matrix
-    axes:
-      - axis:
-          type: user-defined
-          name: TOPOLOGY
-          values:
-            - duffy_3node_cluster
-      - axis:
-          type: python
-          values:
-            - system-CPython-2.7
-      - axis:
-         type: slave
-         name: nodes
-         values:
-          - '{jslave_name}'
-    scm:
-      - paas-sig-ci-scm
-    builders:
-      - shining-panda:
-          build-environment: virtualenv
-          python-version: system-CPython-2.7
-          name: venv
-          nature: shell
-          clear: true
-          use-distribute: false
-          system-site-packages: true
-          command: |
-            {configure-ansible21}
-            {provision-cluster}
-      - shell: |
-          {prep-cluster}
-      - shell: |
-          {bfs-origin}
-      - shell: |
-          {bfs-openshift-ansible}
-      - shell: |
-          {deploy-aosi}
-#      - shell: |
-#          {run-e2e-tests}
-      - shell: |
-          {cbs-origin}
-      - shell: |
-          {cbs-openshift-ansible}
-    publishers:
-      - archive:
-          artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
-          allow-empty: 'false'
-      - openshift-email
-      - postbuildscript:
-          builders:
-            - shining-panda:
-                build-environment: virtualenv
-                python-version: system-CPython-2.7
-                name: venv
-                clear: true
-                use-distribute: false
-                system-site-packages: true
-                command: |
-                  {configure-ansible21}
-                  {teardown-cluster}
-          script-only-if-succeeded: false
-          execute-on: axes
-
-
-###################################
-## MATRIX JOB FOR COMMITTED CODE ##
-###################################
-
-#    parameters:
-#      - label:
-#          name: node
-#          default: paas-sig-ci-slave01
-#          description: "The node on which to run the job"
-
-#- job-template:
-#    name: '{paas-committed-name}-0-test-matrix'
-#    defaults: openshift-defaults
-#    concurrent: false
-#    node: '{jslave_name}'
-#    project-type: matrix
-#    axes:
-#      - axis:
-#          type: user-defined
-#          name: TOPOLOGY
-#          values:
-#            - duffy_3node_cluster
-#      - axis:
-#          type: python
-#          values:
-#            - system-CPython-2.7
-#      - axis:
-#         type: slave
-#         name: nodes
-#         values:
-#          - '{jslave_name}'
-#    scm:
-#      - paas-sig-ci-scm
-#    triggers:
-#        - timed: "H */8 * * *"
-#    builders:
-#      - shining-panda:
-#          build-environment: virtualenv
-#          python-version: system-CPython-2.7
-#          name: venv
-#          nature: shell
-#          clear: true
-#          use-distribute: false
-#          system-site-packages: true
-#          command: |
-#            {configure-ansible21}
-#            {provision-cluster}
-#      - shell: |
-#          {prep-cluster}
 #      - shell: |
 #          {deploy-aosi}
 #      - shell: |
 #          {run-e2e-tests}
-#    publishers:
-#      - archive:
-#          artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
-#          allow-empty: 'false'
-#      - openshift-email
-#      - postbuildscript:
-#          builders:
-#            - shining-panda:
-#                build-environment: virtualenv
-#                python-version: system-CPython-2.7
-#                name: venv
-#                clear: true
-#                use-distribute: false
-#                system-site-packages: true
-#                command: |
-#                  {configure-ansible21}
-#                  {teardown-cluster}
-#          script-only-if-succeeded: false
-#          execute-on: axes
+      - shell: |
+          {cbs-origin}
+      - shell: |
+          {cbs-openshift-ansible}
+    publishers:
+      - archive:
+          artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
+          allow-empty: 'false'
+      - openshift-email
+      - postbuildscript:
+          builders:
+            - shining-panda:
+                build-environment: virtualenv
+                python-version: system-CPython-2.7
+                name: venv
+                clear: true
+                use-distribute: false
+                system-site-packages: true
+                command: |
+                  {configure-ansible21}
+                  {teardown-cluster}
+          script-only-if-succeeded: false
+          execute-on: axes
+
+- job-template:
+    name: '{paas-bfs-name}-future-matrix'
+    defaults: openshift-defaults
+    concurrent: false
+    node: '{jslave_name}'
+    parameters:
+      - string:
+          name: ORIGIN_VERSION
+          default: '3.6.0-alpha.2'
+          description: origin version
+      - string:
+          name: OA_VERSION
+          default: '3.6'
+          description: openshift-ansible version
+      - bool:
+          name: SCRATCH
+          default: true
+          description: build in CBS as a scratch build
+      - bool:
+          name: BE
+          default: true
+          description: build from the master branch
+    project-type: matrix
+    axes:
+      - axis:
+          type: user-defined
+          name: TOPOLOGY
+          values:
+            - duffy_3node_cluster
+      - axis:
+          type: python
+          values:
+            - system-CPython-2.7
+      - axis:
+         type: slave
+         name: nodes
+         values:
+          - '{jslave_name}'
+    scm:
+      - paas-sig-ci-scm
+    builders:
+      - shining-panda:
+          build-environment: virtualenv
+          python-version: system-CPython-2.7
+          name: venv
+          nature: shell
+          clear: true
+          use-distribute: false
+          system-site-packages: true
+          command: |
+            {configure-ansible21}
+            {provision-cluster}
+      - shell: |
+          {prep-cluster}
+      - shell: |
+          {bfs-origin}
+      - shell: |
+          {bfs-openshift-ansible}
+#      - shell: |
+#          {deploy-aosi}
+#      - shell: |
+#          {run-e2e-tests}
+      - shell: |
+          {cbs-origin}
+      - shell: |
+          {cbs-openshift-ansible}
+    publishers:
+      - archive:
+          artifacts: "**/*.output, **/${{TOPOLOGY}}.inventory"
+          allow-empty: 'false'
+      - openshift-email
+      - postbuildscript:
+          builders:
+            - shining-panda:
+                build-environment: virtualenv
+                python-version: system-CPython-2.7
+                name: venv
+                clear: true
+                use-distribute: false
+                system-site-packages: true
+                command: |
+                  {configure-ansible21}
+                  {teardown-cluster}
+          script-only-if-succeeded: false
+          execute-on: axes
 
 - job-group:
-    name: paas-bfs-future-candidate-provision-prep-test-teardown
+    name: paas-bfs-names-provision-prep-test-teardown
     jobs:
-        - '{paas-bfs-future-candidate-name}-0-test-matrix'
+        - '{paas-bfs-name}-candidate-matrix'
+        - '{paas-bfs-name}-future-matrix'
 
-- job-group:
-    name: paas-bfs-master-provision-prep-test-teardown
-    jobs:
-        - '{paas-bfs-master-name}-0-test-matrix'
-
-#- job-group:
-#    name: paas-committed-provision-prep-test-teardown
-#    jobs:
-#        - '{paas-committed-name}-0-test-matrix'
