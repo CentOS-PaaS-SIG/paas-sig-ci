@@ -7,7 +7,7 @@
   when: "'repo_host' in group_names and project == 'origin'"
 - include: build_openshift-ansible_repo.yml
   when: "'repo_host' in group_names and project == 'openshift-ansible'"
-- include: build_openshift_repo.yml
-  when: "'repo_host' in group_names"
+#- include: build_openshift_repo.yml
+#  when: "'repo_host' in group_names and project == 'openshift-ansible'"
 - include: enable_openshift_repo.yml
 

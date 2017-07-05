@@ -1,8 +1,7 @@
 - defaults:
     name: openshift-defaults
     description: |
-        Maintainer: <a href="mailto:herlo@redhat.com>Clint Savage</a><br/>
-        Secondary Maintainer: <a href="mailto:alivigni@redhat.com>Ari LiVigni</a><br/><br/>
+        Maintainer: <a href="mailto:alivigni@redhat.com>Ari LiVigni</a><br/><br/>
         Code Location: http://github.com/CentOS-PaaS-SIG/paas-sig-ci<br/>
         IRC: #centos-devel on freenode<br/>
         Mailing List: <a href="mailto:centos-devel@centos.org">CentOS Devel</a><br/>

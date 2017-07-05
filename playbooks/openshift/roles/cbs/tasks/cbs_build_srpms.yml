@@ -1,14 +1,39 @@
 ---
-- name: build srpm with tito
-  shell: tito build --offline --srpm --rpmbuild-options="--define 'dist .el7'" | grep 'src.rpm'
+- name: build srpm with tito for openshift-ansible
+  shell: tito build --offline --srpm --rpmbuild-options="--define 'dist .el7'" | grep 'src.rpm' | awk '{print $NF}'
   args:
     chdir: "{{ openshift_repo_path }}"
-  register: tito_output
+  register: tito_output_srpm
+  when: project == "openshift-ansible"
 
-- name: "cbs built target for {{ project }} from srpm"
-  shell: "cbs build {{ cbs_target }} {{ tito_output.stdout.split(' ')[1] }}"
+- name: set output of srpm for openshift-ansible
+  set_fact:
+    srpm: "{{ tito_output_srpm.stdout }}"
+  when: project == "openshift-ansible"
+
+- name: get srpm that was generated for origin
+  shell: ls {{ openshift_repo_path}}/_output/local/releases/rpms/*src.rpm
+  register: ls_output_srpm
+  when: project == "origin"
+
+- name: set output of srpm for origin
+  set_fact:
+    srpm: "{{ ls_output_srpm.stdout }}"
+  when: project == "origin"
+
+- name: set cbs_target to paas7-openshift-future-el7 for bleeding_edge
+  set_fact:
+    cbs_target: paas7-openshift-future-el7
+  when: bleeding_edge
+
+- name: "cbs build target for {{ project }} from srpm"
+  shell: "cbs build --wait {{ cbs_target }} {{ srpm }}"
+  args:
+    chdir: "{{ openshift_repo_path }}"
   when: not scratch
 
-- name: "cbs built target for {{ project }} from srpm"
-  shell: "cbs build --scratch {{ cbs_target }} {{ tito_output.stdout.split(' ')[1] }}"
+- name: "cbs build scratch target for {{ project }} from srpm"
+  shell: "cbs build --wait --scratch {{ cbs_target }} {{ srpm }}"
+  args:
+    chdir: "{{ openshift_repo_path }}"
   when: scratch
