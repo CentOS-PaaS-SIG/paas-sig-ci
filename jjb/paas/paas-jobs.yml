@@ -111,6 +111,8 @@
           name: BE
           default: true
           description: build from the master branch
+    triggers:
+      - timed: "0 1/3 * * *"
     project-type: matrix
     axes:
       - axis:
