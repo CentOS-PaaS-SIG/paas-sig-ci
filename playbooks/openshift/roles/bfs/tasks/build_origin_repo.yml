@@ -3,6 +3,8 @@
   with_items:
     - { prop: 'project', value: "{{ project }}" }
     - { prop: 'version', value: "{{ version }}" }
+    - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
+    - { prop: 'force_build', value: "{{ force_build }}" }
 
 - name: Start and enable docker service
   service:
