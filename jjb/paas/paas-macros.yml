@@ -32,7 +32,7 @@
       mkdir -p $WORKSPACE/inventory
 
       # provision cluster
-      ansible-playbook {provision-pb} -u root -v \
+      ansible-playbook {provision-pb} -u root -vv \
       -e "topology=$WORKSPACE/paas-ci/config/topologies/${{TOPOLOGY}}.yml" \
       -e "inventory_layout_file=$WORKSPACE/paas-ci/config/inv_layouts/{inventory-layout-file}" \
       -e "inventory_outputs_path=$WORKSPACE/inventory" -e "state=present"
@@ -41,7 +41,7 @@
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -v \
+      ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{prep-pb} -e "repo_from_source=true"
     bfs-origin: |
@@ -49,7 +49,7 @@
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -v \
+      ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{bfs-pb} \
       -e "repo_from_source=true" \
@@ -61,20 +61,21 @@
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -v \
+      ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{bfs-pb} \
       -e "repo_from_source=true" \
       -e "project=openshift-ansible" \
       -e "version=${{OA_VERSION}}" \
       -e "origin_version=${{ORIGIN_VERSION}}" \
-      -e "arch=noarch"
+      -e "arch=noarch" \
+      -e "bleeding_edge=${{BE}}"
     deploy-aosi: |
       #!/bin/bash
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -v \
+      ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{deploy-aosi-pb} \
       -e "version=${{ORIGIN_VERSION}}"
@@ -83,7 +84,7 @@
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -v \
+      ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{run-e2e-pb}
     cbs-origin: |
@@ -91,7 +92,7 @@
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -v \
+      ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{cbs-pb} -e "project=origin" \
       -e "scratch=${{SCRATCH}}"
@@ -100,7 +101,7 @@
       set -xeuo pipefail
 
       # see what we have in terms of inventory
-      ansible-playbook -u root -v \
+      ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{cbs-pb} -e "project=openshift-ansible" \
       -e "scratch=${{SCRATCH}}"
@@ -109,7 +110,7 @@
       set -xeuo pipefail
 
       # teardown cluster
-      ansible-playbook {provision-pb} -u root -v \
+      ansible-playbook {provision-pb} -u root -vv \
       -e "topology=$WORKSPACE/paas-ci/config/topologies/${{TOPOLOGY}}.yml" \
       -e "schema=$WORKSPACE/linch-pin/ex_schemas/schema_v2.json state=absent"
     jobs:
