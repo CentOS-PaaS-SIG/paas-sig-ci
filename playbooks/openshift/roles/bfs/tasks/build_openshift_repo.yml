@@ -18,9 +18,6 @@
     chdir: "{{ openshift_repo_path }}"
   register: pkgs_built
 
-- name: get godeps
-  command: go get github.com/josephspurrier/goversioninfo/cmd/goversioninfo
-
 - name: generate repo
   shell: createrepo_c .
   args:
