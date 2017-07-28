@@ -97,11 +97,11 @@
     parameters:
       - string:
           name: ORIGIN_VERSION
-          default: '3.6.0-rc.0'
+          default: '3.7.0-alpha.0'
           description: origin version
       - string:
           name: OA_VERSION
-          default: '3.6'
+          default: '3.7'
           description: openshift-ansible version
       - bool:
           name: SCRATCH
