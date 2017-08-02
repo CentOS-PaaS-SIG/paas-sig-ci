@@ -7,13 +7,15 @@
         Mailing List: <a href="mailto:centos-devel@centos.org">CentOS Devel</a><br/>
         Managed by Jenkins Job Builder. Do not edit via the web interface.
     wrappers:
-        - ansicolor
+        - ansicolor:
+            colormap: xterm
         - workspace-cleanup
         - timestamps
         - inject:
             properties-content: |
                 ANSIBLE_SSH_CONTROL_PATH=%(directory)s/%%h-%%r
                 ANSIBLE_HOST_KEY_CHECKING=False
+                ANSIBLE_FORCE_COLOR=true
 
     properties:
         - build-discarder:
