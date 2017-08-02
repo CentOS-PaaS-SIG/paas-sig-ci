@@ -95,7 +95,8 @@
       ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{cbs-pb} -e "project=origin" \
-      -e "scratch=${{SCRATCH}}"
+      -e "scratch=${{SCRATCH}}" \
+      -e "bleeding_edge=${{BE}}"
     cbs-openshift-ansible: |
       #!/bin/bash
       set -xeuo pipefail
@@ -104,7 +105,8 @@
       ansible-playbook -u root -vv \
       -i $WORKSPACE/inventory/${{TOPOLOGY}}.inventory \
       $WORKSPACE/{cbs-pb} -e "project=openshift-ansible" \
-      -e "scratch=${{SCRATCH}}"
+      -e "scratch=${{SCRATCH}}" \
+      -e "bleeding_edge=${{BE}}"
     teardown-cluster: |
       #!/bin/bash
       set -xeuo pipefail
