@@ -11,7 +11,7 @@
     parameters:
       - string:
           name: ORIGIN_VERSION
-          default: '3.6.0-rc.0'
+          default: '3.6.0'
           description: origin version
       - string:
           name: OA_VERSION
@@ -97,7 +97,7 @@
     parameters:
       - string:
           name: ORIGIN_VERSION
-          default: '3.6.0-rc.0'
+          default: '3.6.0'
           description: origin version
       - string:
           name: OA_VERSION
