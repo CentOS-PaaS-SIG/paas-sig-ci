@@ -1,5 +1,5 @@
 - name: set latest tag from git tag
-  shell: "git tag | grep {{ project }}-{{ version }} | cut -d'.' -f3 | sort -n | tail -n1"
+  shell: "git tag | grep {{ project }}-{{ version }} | sed \"s/{{ project }}-{{ version }}.//\" | sort -n | tail -n1"
   args:
     chdir: "{{ openshift_repo_path }}"
   register: LATEST_TAG
