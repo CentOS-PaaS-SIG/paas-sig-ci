@@ -74,7 +74,7 @@
           subject: $DEFAULT_SUBJECT CentOS-PaaS-SIG
           body: $DEFAULT_CONTENT
           attach-build-log: true
-          always: true
+          always: false
           unstable: false
           first-failure: true
           not-built: false
