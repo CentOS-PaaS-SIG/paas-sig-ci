@@ -88,6 +88,12 @@
                   {teardown-cluster}
           script-only-if-succeeded: false
           execute-on: axes
+      - naginator:
+          rerun-unstable-builds: true
+          rerun-matrix-part: true
+          progressive-delay-increment: 10
+          progressive-delay-maximum: 30
+          max-failed-builds: 3
 
 - job-template:
     name: '{paas-bfs-name}-future-matrix'
@@ -176,6 +182,12 @@
                   {teardown-cluster}
           script-only-if-succeeded: false
           execute-on: axes
+      - naginator:
+          rerun-unstable-builds: true
+          rerun-matrix-part: true
+          progressive-delay-increment: 10
+          progressive-delay-maximum: 30
+          max-failed-builds: 3
 
 - job-group:
     name: paas-bfs-names-provision-prep-test-teardown
