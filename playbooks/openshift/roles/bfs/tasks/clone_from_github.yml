@@ -4,7 +4,7 @@
 - stat: path="{{ openshift_repo_path }}.git/"
   register: dot_git_path
 
-- name: git clone origin
+- name: "git clone {{ project }}"
   git:
     repo: https://github.com/openshift/{{ project }}
     dest: "{{ openshift_repo_path }}"
