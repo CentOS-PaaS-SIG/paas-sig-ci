@@ -3,13 +3,16 @@ env.ANSIBLE_HOST_KEY_CHECKING = false
 env.ANSIBLE_FORCE_COLOR = true
 env.PAAS_SLAVE = "paas-sig-ci-slave01"
 env.TOPOLOGY = "duffy_3node_cluster"
-env.INVENTORY_LAYOUT_FILE = "openshift-3node-inventory.yml"
+env.TOPOLOGY_PATH = "paas-ci/config/topologies/" + env.TOPOLOGY + ".yml"
+env.INVENTORY_LAYOUT_FILE = "paas-ci/config/inv_layouts/openshift-3node-inventory.yml"
 env.lpsha1 = "a950a170e0694f2b596431eb2e54f1ec38b873d1"
+env.PROVISION_PB = "linch-pin/provision/site.yml"
 env.PREP_PB = 'paas-ci/playbooks/openshift/setup.yml'
 env.BFS_PB = 'paas-ci/playbooks/openshift/bfs.yml'
 env.DEPLOY_AOSI_PB = 'paas-ci/playbooks/openshift/deploy_aosi.yml'
 env.RUN_E2E_PB = 'paas-ci/playbooks/openshift/run_e2e_tests.yml'
 env.CBS_PB = 'paas-ci/playbooks/openshift/cbs.yml'
+env.VENV = env.JOB_NAME + '-' + UUID.randomUUID().toString().substring(0,5)
 
 properties(
         [
@@ -30,6 +33,7 @@ properties(
 
 if (env.BE) {
     ORIGIN_BRANCH = 'master'
+    OA_BRANCH = 'master'
 } else {
     ORIGIN_BRANCH = "refs/tags/v${env.ORIGIN_VERSION}"
     OA_BRANCH = "refs/tags/v${env.OA_VERSION}"
@@ -42,43 +46,49 @@ node (env.PAAS_SLAVE) {
         timestamps {
             try {
                 deleteDir()
-
-                // Set our current stage value
+                def pypackages = ['ansible==2.1.0', 'jsonschema', 'functools32']
                 currentStage = 'Provision-Cluster'
                 stage(currentStage) {
-                    // SCM Checkout for origin and ansbile
+                    // SCM Checkout for origin and openshift-ansbile
                     dir( 'origin') {
-                        checkout([$class                           : 'GitSCM', branches: [[name: "${ORIGIN_BRANCH}"]],
-                                  doGenerateSubmoduleConfigurations: false,
-                                  extensions                       : [],
-                                  submoduleCfg                     : [],
-                                  userRemoteConfigs                : [
-                                          [refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                           url    : 'https://github.com/openshift/origin'
-                                          ]
-                                  ]])
+                        checkout scm: [$class: 'GitSCM',
+                                       branches: [[name: "${ORIGIN_BRANCH}"]],
+                                       doGenerateSubmoduleConfigurations: false,
+                                       extensions: [],
+                                       submoduleCfg: [],
+                                       userRemoteConfigs: [
+                                               [
+                                                       refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
+                                                       url: 'https://github.com/openshift/origin'
+                                               ]]]
                     }
                     dir('openshift-ansible') {
-                        checkout([$class                           : 'GitSCM', branches: [[name: "${OA_BRANCH}"]],
-                                  doGenerateSubmoduleConfigurations: false,
-                                  extensions                       : [],
-                                  submoduleCfg                     : [],
-                                  userRemoteConfigs                : [
-                                          [refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                           url    : 'https://github.com/openshift/openshift_ansible'
-                                          ]
-                                  ]])
+                        checkout scm: [$class: 'GitSCM',
+                                       branches: [[name: "${OA_BRANCH}"]],
+                                       doGenerateSubmoduleConfigurations: false,
+                                       extensions: [],
+                                       submoduleCfg: [],
+                                       userRemoteConfigs: [
+                                               [
+                                                       refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
+                                                       url: 'https://github.com/openshift/openshift-ansible'
+                                               ]]]
                     }
                     dir('paas-ci') {
-                        checkout poll: false([$class                           : 'GitSCM', branches: [[name: "master"]],
-                                              doGenerateSubmoduleConfigurations: false,
-                                              extensions                       : [],
-                                              submoduleCfg                     : [],
-                                              userRemoteConfigs                : [
-                                                      [refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                                       url    : 'https://github.com/CentOS-PaaS-SIG/paas-sig-ci'
-                                                      ]
-                                              ]])
+                        checkout poll: false,
+                                    scm: [$class: 'GitSCM',
+                                       branches: [[name: "master"]],
+                                       doGenerateSubmoduleConfigurations: false,
+                                       extensions: [],
+                                       submoduleCfg: [],
+                                       userRemoteConfigs: [
+                                               [
+                                                       refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
+                                                       url: 'https://github.com/CentOS-PaaS-SIG/paas-sig-ci'
+                                               ]]]
+                    }
+                    if( !(fileExists("${env.VENV}")) ) {
+                        setupVenv(pypackages)
                     }
                     provisionDuffyLinchPin(currentStage)
                 }
@@ -111,7 +121,12 @@ node (env.PAAS_SLAVE) {
                     cbs(currentStage, 'openshift-ansible')
                 }
                 currentStage = 'Teardown-Cluster'
-                teardownDuffyLinchPin(currentStage)
+                stage(currentStage) {
+                    if( !(fileExists("${env.VENV}")) ) {
+                        setupVenv(pypackages)
+                    }
+                    teardownDuffyLinchPin(currentStage)
+                }
             } catch (e) {
                 // Set build result
                 currentBuild.result = 'FAILURE'
@@ -130,6 +145,23 @@ node (env.PAAS_SLAVE) {
 
 }
 
+/**
+ * Method for setting up Virtualenv
+ * @param packages List of packages
+ * @return
+ */
+def setupVenv(List packages) {
+    env.PYPACKAGES = packages.join(' ')
+    sh '''
+        set -xeo pipefail
+        
+        virtualenv ${VENV}
+        source ${VENV}/bin/activate
+        pip install --upgrade pip setuptools
+        pip install ${PYPACKAGES}
+        cp -r /usr/lib64/python2.7/site-packages/selinux $VIRTUAL_ENV/lib/python2.7/site-packages
+    '''
+}
 
 /**
  * Wrapper function to provision duffy resources using LinchPin
@@ -152,7 +184,6 @@ def teardownDuffyLinchPin (String stage) {
     duffyLinchPin(duffyLpOps)
 }
 
-
 /**
  * Method for provisioning and tearing down duffy resources using https://github.com/CentOS-PaaS-SIG/linchpin
  * @param lpMap Default lpMap[stage:'duffyLinchPin-stage',
@@ -168,37 +199,37 @@ def duffyLinchPin (Map lpMap) {
 
 
     dir('linch-pin') {
-        checkout poll: false([$class                           : 'GitSCM', branches: [[name: "${lpsha1}"]],
-                              doGenerateSubmoduleConfigurations: false,
-                              extensions                       : [],
-                              submoduleCfg                     : [],
-                              userRemoteConfigs                : [
-                                      [refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                       url    : 'https://github.com/CentOS-PaaS-SIG/linch-pin'
-                                      ]
-                              ]])
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                      branches: [[name: "${lpsha1}"]],
+                      doGenerateSubmoduleConfigurations: false,
+                      extensions: [],
+                      submoduleCfg: [],
+                      userRemoteConfigs: [
+                              [
+                                      refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
+                                      url: 'https://github.com/CentOS-PaaS-SIG/linch-pin'
+                              ]]]
     }
     dir('duffy-ansible-module') {
-        checkout poll: false([$class                           : 'GitSCM', branches: [[name: "master"]],
-                              doGenerateSubmoduleConfigurations: false,
-                              extensions                       : [],
-                              submoduleCfg                     : [],
-                              userRemoteConfigs                : [
-                                      [refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                       url    : 'https://github.com/CentOS-PaaS-SIG/duffy-ansible-module'
-                                      ]
-                              ]])
+        checkout poll: false,
+                scm: [$class: 'GitSCM',
+                      branches: [[name: 'master']],
+                      doGenerateSubmoduleConfigurations: false,
+                      extensions: [],
+                      submoduleCfg: [],
+                      userRemoteConfigs: [
+                              [
+                                      refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
+                                      url: 'https://github.com/CentOS-PaaS-SIG/duffy-ansible-module'
+                              ]]]
     }
 
     sh '''
         #!/bin/bash
-        set -xeuo pipefail
+        set -xeo pipefail
 
-        UUID=$( uuidgen | cut -d '-' -f1 )
-        virtualenv ${JOB_NAME}-${UUID}
-        source ${JOB_NAME}-${UUID}/bin/activate
-        pip install --upgrade ansible>=2.1.0
-        pip install jsonschema functools32
+        source ${VENV}/bin/activate
 
         # create ansible.cfg
         echo "[defaults]" > ansible.cfg
@@ -208,15 +239,14 @@ def duffyLinchPin (Map lpMap) {
         mkdir -p $WORKSPACE/inventory
 
         # provision cluster
-        ansible-playbook {provision-pb} -u root -vv \
-        -e "topology=$WORKSPACE/paas-ci/config/topologies/${TOPOLOGY}.yml" \
-        -e "inventory_layout_file=$WORKSPACE/paas-ci/config/inv_layouts/${INVENTORY_LAYOUT_FILE}" \
+        ansible-playbook ${PROVISION_PB} -u root -vv \
+        -e "topology=$WORKSPACE/${TOPOLOGY_PATH}" \
+        -e "inventory_layout_file=$WORKSPACE/${INVENTORY_LAYOUT_FILE}" \
         -e "inventory_outputs_path=$WORKSPACE/inventory" -e "state=${ACTION}"
         
         deactivate
     '''
 }
-
 
 /**
  * Method to prep and Openshift cluster
