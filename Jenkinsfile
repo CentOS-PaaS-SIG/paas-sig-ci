@@ -152,6 +152,7 @@ node (env.PAAS_SLAVE) {
 def setupVenv(List packages) {
     env.PYPACKAGES = packages.join(' ')
     sh '''
+        #!/bin/bash
         set -xeo pipefail
         
         virtualenv ${VENV}
