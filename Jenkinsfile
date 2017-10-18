@@ -25,7 +25,7 @@ properties(
                                 booleanParam(defaultValue: true, description: 'build in CBS as a scratch build', name: 'SCRATCH'),
                                 booleanParam(defaultValue: true, description: 'build from the master branch', name: 'BE'),
                         ],
-                pipelineTriggers([pollSCM('H */3 * * *')])
+                //pipelineTriggers([pollSCM('H */3 * * *')]),
                 ),
 
         ]
@@ -120,13 +120,6 @@ node (env.PAAS_SLAVE) {
                 stage(currentStage){
                     cbs(currentStage, 'openshift-ansible')
                 }
-                currentStage = 'Teardown-Cluster'
-                stage(currentStage) {
-                    if( !(fileExists("${env.VENV}")) ) {
-                        setupVenv(pypackages)
-                    }
-                    teardownDuffyLinchPin(currentStage)
-                }
             } catch (e) {
                 // Set build result
                 currentBuild.result = 'FAILURE'
@@ -138,7 +131,13 @@ node (env.PAAS_SLAVE) {
                 // Throw the error
                 throw e
             } finally {
-
+                currentStage = 'Teardown-Cluster'
+                stage(currentStage) {
+                    if( !(fileExists("${env.VENV}")) ) {
+                        setupVenv(pypackages)
+                    }
+                    teardownDuffyLinchPin(currentStage)
+                }
             }
         }
     }
@@ -281,7 +280,7 @@ def bfs (String stage, String project) {
 
     env.bfsCommand = "ansible-playbook -u root -vv " +
             "-i ${env.WORKSPACE}/inventory/${env.TOPOLOGY}.inventory " +
-            "${env.WORKSPACE}/${env.BFS_PB} -e repo_from_source=true" +
+            "${env.WORKSPACE}/${env.BFS_PB} -e repo_from_source=true " +
             "-e project=${project} " +
             "-e bleeding_edge=${env.BE} "
 
