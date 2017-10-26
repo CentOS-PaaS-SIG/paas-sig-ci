@@ -28,7 +28,7 @@ properties(
                                 booleanParam(defaultValue: true, description: 'build openshift-ansible', name: 'BUILD_OA'),
                         ],
                 ),
-                pipelineTriggers([cron('H */3 * * *')]),
+                //pipelineTriggers([cron('H */3 * * *')]),
         ]
 )
 
