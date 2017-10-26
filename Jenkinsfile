@@ -36,8 +36,8 @@ if (env.BE) {
     ORIGIN_BRANCH = 'master'
     OA_BRANCH = 'master'
 } else {
-    ORIGIN_BRANCH = "refs/tags/v${env.ORIGIN_VERSION}"
-    OA_BRANCH = "refs/tags/v${env.OA_VERSION}"
+    ORIGIN_BRANCH = "v${env.ORIGIN_VERSION}"
+    OA_BRANCH = "${env.OA_VERSION}"
 }
 
 node (env.PAAS_SLAVE) {
@@ -76,17 +76,21 @@ node (env.PAAS_SLAVE) {
                 currentStage = 'Build-Origin'
                 stage(currentStage){
                     if ("${env.BUILD_ORIGIN}" == "true") {
+                        currentBuild.Display = "origin - ${env.ORIGIN_BRANCH}"
                         bfs(currentStage, 'origin')
                     } else {
-                        echo "Not Building origin"
+                        echo "NOT Building origin"
+                        currentBuild.Display = "NOT building origin "
                     }
                 }
                 currentStage = 'Build-Openshift-Ansbile'
                 stage(currentStage){
                     if ("${env.BUILD_OA}" == "true") {
+                        currentBuild.Display += "openshift-ansible - ${env.OA_BRANCH}"
                         bfs(currentStage, 'openshift-ansible')
                     } else {
-                        echo "Not Building openshift-ansible"
+                        echo "NOT Building openshift-ansible"
+                        currentBuild.Display += "NOT building openshift-ansible"
                     }
                 }
 //                currentStage = 'deploy-openshift-cluster'
@@ -102,7 +106,7 @@ node (env.PAAS_SLAVE) {
                     if ("${env.BUILD_ORIGIN}" == "true") {
                         cbs(currentStage, 'origin')
                     } else {
-                        echo "Not Building origin"
+                        echo "NOT Building origin"
                     }
                 }
                 currentStage = 'cbs-openshift-ansible'
@@ -110,7 +114,7 @@ node (env.PAAS_SLAVE) {
                     if ("${env.BUILD_OA}" == "true") {
                         cbs(currentStage, 'openshift-ansible')
                     } else {
-                        echo "Not Building openshift-ansible"
+                        echo "NOT Building openshift-ansible"
                     }
                 }
             } catch (e) {
@@ -138,6 +142,9 @@ node (env.PAAS_SLAVE) {
                 if( fileExists("cbs_taskid_openshift-ansible.groovy") ) {
                     currentBuild.description += " : openshift-ansible_taskid = ${env.CBS_TASKID_openshift_ansible}"
                 }
+                // Archive our artifacts
+                step([$class: 'ArtifactArchiver', allowEmptyArchive: true, artifacts: '*.log,*.txt,*.groovy', fingerprint: true])
+
             }
         }
     }
