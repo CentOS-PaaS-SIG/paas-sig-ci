@@ -28,7 +28,7 @@ properties(
                                 booleanParam(defaultValue: true, description: 'build openshift-ansible', name: 'BUILD_OA'),
                         ],
                 ),
-                //pipelineTriggers([cron('H */3 * * *')]),
+                pipelineTriggers([cron('H */3 * * *')]),
         ]
 )
 
@@ -63,7 +63,7 @@ node (env.PAAS_SLAVE) {
                                        userRemoteConfigs: [
                                                [
                                                        refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                                       url: 'https://github.com/arilivigni/paas-sig-ci'
+                                                       url: 'https://github.com/CentOS-PaaS-SIG/paas-sig-ci'
                                                ]]]
                     }
                     if( !(fileExists("${env.VENV}")) ) {
