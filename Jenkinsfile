@@ -369,5 +369,5 @@ def cbs (String stage, String project) {
       -e "scratch=${SCRATCH}" \
       -e "bleeding_edge=${BE}"
     '''
-    load("cbs_taskid_" + ${env.PROJECT} + ".groovy")
+    load("cbs_taskid_${env.PROJECT}.groovy")
 }
