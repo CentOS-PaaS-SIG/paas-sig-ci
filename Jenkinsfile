@@ -139,10 +139,10 @@ node (env.PAAS_SLAVE) {
                 }
                 currentBuild.description = ''
                 if( fileExists("cbs_taskid_origin.groovy") ) {
-                    currentBuild.description = "origin_taskid = ${env.CBS_TASKID_origin}"
+                    currentBuild.description = "<a href=\"https://cbs.centos.org/koji/taskinfo?taskID=${env.CBS_TASKID_origin}\">origin_taskID = ${env.CBS_TASKID_origin}</a> :"
                 }
                 if( fileExists("cbs_taskid_openshift-ansible.groovy") ) {
-                    currentBuild.description += " : openshift-ansible_taskid = ${env.CBS_TASKID_openshift_ansible}"
+                    currentBuild.description += ": <a href=\"https://cbs.centos.org/koji/taskinfo?taskID=${env.CBS_TASKID_openshift_ansible}\">O-A_taskID = ${env.CBS_TASKID_openshift_ansible}</a>"
                 }
                 // Archive our artifacts
                 step([$class: 'ArtifactArchiver', allowEmptyArchive: true, artifacts: '*.log,*.txt,*.groovy', fingerprint: true])
