@@ -32,13 +32,6 @@ properties(
         ]
 )
 
-if (env.BE) {
-    ORIGIN_BRANCH = 'master'
-    OA_BRANCH = 'master'
-} else {
-    ORIGIN_BRANCH = "v${env.ORIGIN_VERSION}"
-    OA_BRANCH = "${env.OA_VERSION}"
-}
 
 node (env.PAAS_SLAVE) {
     def currentStage = ""
@@ -47,6 +40,15 @@ node (env.PAAS_SLAVE) {
         timestamps {
             try {
                 deleteDir()
+                // set branch vars
+                if ("${env.BE}" == "true") {
+                    ORIGIN_BRANCH = 'master'
+                    OA_BRANCH = 'master'
+                } else {
+                    ORIGIN_BRANCH = "v${env.ORIGIN_VERSION}"
+                    OA_BRANCH = "${env.OA_VERSION}"
+                }
+
                 def pypackages = ['ansible==2.1.0', 'jsonschema', 'functools32']
                 currentStage = 'Provision-Cluster'
                 stage(currentStage) {

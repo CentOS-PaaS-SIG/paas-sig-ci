@@ -50,10 +50,10 @@
   debug:
     msg: "cbs taskID = {{ cbs_taskid | join(' ') }}"
 
-- name: "make sure the cbs_taskid_{{ project }}.groovy file is gone"
+- name: "make sure the {{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy file is gone"
   file:
     state: absent
-    path: "./cbs_taskid_{{ project }}.groovy"
+    path: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
 
 - name: "set project_mod so we lose the dash for openshift-ansible"
   set_fact:
@@ -61,14 +61,14 @@
 
 - name: "create cbs_taskid_{{ project }}.groovy file with the taskid"
   lineinfile:
-    path: "./cbs_taskid_{{ project }}.groovy"
+    path: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
     line: "env.CBS_TASKID_{{ project_mod }}=\"{{ cbs_taskid | join(' ') }}\""
     state: present
     create: yes
 
-- name: "fetch file ./cbs_taskid_{{ project }}.groovy"
+- name: "fetch file {{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
   fetch:
-    src: "./cbs_taskid_{{ project }}.groovy"
-    dest: "./cbs_taskid_{{ project }}.groovy"
+    src: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+    dest: "{{ lookup('env','PWD') }}/cbs_taskid_{{ project }}.groovy"
     flat: yes
 
