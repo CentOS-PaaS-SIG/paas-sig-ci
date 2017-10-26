@@ -76,21 +76,21 @@ node (env.PAAS_SLAVE) {
                 currentStage = 'Build-Origin'
                 stage(currentStage){
                     if ("${env.BUILD_ORIGIN}" == "true") {
-                        currentBuild.Display = "origin - ${env.ORIGIN_BRANCH}"
+                        currentBuild.displayName = "origin - ${env.ORIGIN_BRANCH}"
                         bfs(currentStage, 'origin')
                     } else {
                         echo "NOT Building origin"
-                        currentBuild.Display = "NOT building origin "
+                        currentBuild.displayName = "NOT building origin "
                     }
                 }
                 currentStage = 'Build-Openshift-Ansbile'
                 stage(currentStage){
                     if ("${env.BUILD_OA}" == "true") {
-                        currentBuild.Display += "openshift-ansible - ${env.OA_BRANCH}"
+                        currentBuild.displayName += "openshift-ansible - ${env.OA_BRANCH}"
                         bfs(currentStage, 'openshift-ansible')
                     } else {
                         echo "NOT Building openshift-ansible"
-                        currentBuild.Display += "NOT building openshift-ansible"
+                        currentBuild.displayName += "NOT building openshift-ansible"
                     }
                 }
 //                currentStage = 'deploy-openshift-cluster'
