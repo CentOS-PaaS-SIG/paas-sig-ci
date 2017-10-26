@@ -65,3 +65,10 @@
     line: "env.CBS_TASKID_{{ project_mod }}=\"{{ cbs_taskid | join(' ') }}\""
     state: present
     create: yes
+
+- name: "fetch file ./cbs_taskid_{{ project }}.groovy"
+  fetch:
+    src: "./cbs_taskid_{{ project }}.groovy"
+    dest: "./cbs_taskid_{{ project }}.groovy"
+    flat: yes
+
