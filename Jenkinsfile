@@ -24,9 +24,11 @@ properties(
                                 string(defaultValue: '3.7', description: 'openshift-ansible version', name: 'OA_VERSION'),
                                 booleanParam(defaultValue: true, description: 'build in CBS as a scratch build', name: 'SCRATCH'),
                                 booleanParam(defaultValue: true, description: 'build from the master branch', name: 'BE'),
+                                booleanParam(defaultValue: true, description: 'build origin', name: 'BUILD_ORIGIN'),
+                                booleanParam(defaultValue: true, description: 'build openshift-ansible', name: 'BUILD_OA'),
                         ],
+                        pipelineTriggers([cron('H */3 * * *')]),
                 ),
-                pipelineTriggers([pollSCM('H */3 * * *')]),
         ]
 )
 
@@ -48,31 +50,7 @@ node (env.PAAS_SLAVE) {
                 def pypackages = ['ansible==2.1.0', 'jsonschema', 'functools32']
                 currentStage = 'Provision-Cluster'
                 stage(currentStage) {
-                    // SCM Checkout for origin and openshift-ansbile
-                    dir( 'origin') {
-                        checkout scm: [$class: 'GitSCM',
-                                       branches: [[name: "${ORIGIN_BRANCH}"]],
-                                       doGenerateSubmoduleConfigurations: false,
-                                       extensions: [],
-                                       submoduleCfg: [],
-                                       userRemoteConfigs: [
-                                               [
-                                                       refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                                       url: 'https://github.com/openshift/origin'
-                                               ]]]
-                    }
-                    dir('openshift-ansible') {
-                        checkout scm: [$class: 'GitSCM',
-                                       branches: [[name: "${OA_BRANCH}"]],
-                                       doGenerateSubmoduleConfigurations: false,
-                                       extensions: [],
-                                       submoduleCfg: [],
-                                       userRemoteConfigs: [
-                                               [
-                                                       refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                                       url: 'https://github.com/openshift/openshift-ansible'
-                                               ]]]
-                    }
+                    // Checkout this SCM
                     dir('paas-ci') {
                         checkout poll: false,
                                     scm: [$class: 'GitSCM',
@@ -97,11 +75,19 @@ node (env.PAAS_SLAVE) {
                 }
                 currentStage = 'Build-Origin'
                 stage(currentStage){
-                    bfs(currentStage, 'origin')
+                    if ("${env.BUILD_ORIGIN}" == "true") {
+                        bfs(currentStage, 'origin')
+                    } else {
+                        echo "Not Building origin"
+                    }
                 }
                 currentStage = 'Build-Openshift-Ansbile'
                 stage(currentStage){
-                    bfs(currentStage, 'openshift-ansible')
+                    if ("${env.BUILD_OA}" == "true") {
+                        bfs(currentStage, 'openshift-ansible')
+                    } else {
+                        echo "Not Building openshift-ansible"
+                    }
                 }
 //                currentStage = 'deploy-openshift-cluster'
 //                stage(currentStage){
@@ -113,11 +99,19 @@ node (env.PAAS_SLAVE) {
 //                }
                 currentStage = 'cbs-origin'
                 stage(currentStage){
-                    cbs(currentStage, 'origin')
+                    if ("${env.BUILD_ORIGIN}" == "true") {
+                        cbs(currentStage, 'origin')
+                    } else {
+                        echo "Not Building origin"
+                    }
                 }
                 currentStage = 'cbs-openshift-ansible'
                 stage(currentStage){
-                    cbs(currentStage, 'openshift-ansible')
+                    if ("${env.BUILD_OA}" == "true") {
+                        cbs(currentStage, 'openshift-ansible')
+                    } else {
+                        echo "Not Building openshift-ansible"
+                    }
                 }
             } catch (e) {
                 // Set build result
@@ -136,6 +130,13 @@ node (env.PAAS_SLAVE) {
                         setupVenv(pypackages)
                     }
                     teardownDuffyLinchPin(currentStage)
+                }
+                currentBuild.description = ''
+                if( fileExists("cbs_taskid_origin.groovy") ) {
+                    currentBuild.description = "origin_taskid = ${env.CBS_TASKID_origin}"
+                }
+                if( fileExists("cbs_taskid_openshift-ansible.groovy") ) {
+                    currentBuild.description += " : openshift-ansible_taskid = ${env.CBS_TASKID_openshift_ansible}"
                 }
             }
         }
@@ -360,4 +361,5 @@ def cbs (String stage, String project) {
       -e "scratch=${SCRATCH}" \
       -e "bleeding_edge=${BE}"
     '''
+    load("cbs_taskid_" + ${env.PROJECT} + ".groovy")
 }
