@@ -43,8 +43,6 @@
 - name: set the cbs task id
   set_fact:
     cbs_taskid: "{{ cbs_results.stdout | regex_search(regexp,'\\1') }}"
-
-- name: "setup a regex for cbs_taskid fact"
   vars:
     regexp: '.*taskID=([0-9]+).*'
 
