@@ -76,7 +76,7 @@ node (env.PAAS_SLAVE) {
                 currentStage = 'Build-Origin'
                 stage(currentStage){
                     if ("${env.BUILD_ORIGIN}" == "true") {
-                        currentBuild.displayName = "origin - ${env.ORIGIN_BRANCH}"
+                        currentBuild.displayName = "origin - ${ORIGIN_BRANCH}"
                         bfs(currentStage, 'origin')
                     } else {
                         echo "NOT Building origin"
@@ -86,7 +86,7 @@ node (env.PAAS_SLAVE) {
                 currentStage = 'Build-Openshift-Ansbile'
                 stage(currentStage){
                     if ("${env.BUILD_OA}" == "true") {
-                        currentBuild.displayName += "openshift-ansible - ${env.OA_BRANCH}"
+                        currentBuild.displayName += "openshift-ansible - ${OA_BRANCH}"
                         bfs(currentStage, 'openshift-ansible')
                     } else {
                         echo "NOT Building openshift-ansible"
@@ -135,16 +135,15 @@ node (env.PAAS_SLAVE) {
                     }
                     teardownDuffyLinchPin(currentStage)
                 }
-                currentBuild.description = ''
-                if( fileExists("cbs_taskid_origin.groovy") ) {
-                    currentBuild.description = "origin_taskid = ${env.CBS_TASKID_origin}"
-                }
-                if( fileExists("cbs_taskid_openshift-ansible.groovy") ) {
-                    currentBuild.description += " : openshift-ansible_taskid = ${env.CBS_TASKID_openshift_ansible}"
-                }
+//                currentBuild.description = ''
+//                if( fileExists("cbs_taskid_origin.groovy") ) {
+//                    currentBuild.description = "origin_taskid = ${env.CBS_TASKID_origin}"
+//                }
+//                if( fileExists("cbs_taskid_openshift-ansible.groovy") ) {
+//                    currentBuild.description += " : openshift-ansible_taskid = ${env.CBS_TASKID_openshift_ansible}"
+//                }
                 // Archive our artifacts
-                step([$class: 'ArtifactArchiver', allowEmptyArchive: true, artifacts: '*.log,*.txt,*.groovy', fingerprint: true])
-
+//                step([$class: 'ArtifactArchiver', allowEmptyArchive: true, artifacts: '*.log,*.txt,*.groovy', fingerprint: true])
             }
         }
     }
@@ -368,5 +367,5 @@ def cbs (String stage, String project) {
       -e "scratch=${SCRATCH}" \
       -e "bleeding_edge=${BE}"
     '''
-    load("cbs_taskid_" + ${env.PROJECT} + ".groovy")
+    //load("cbs_taskid_" + ${env.PROJECT} + ".groovy")
 }
