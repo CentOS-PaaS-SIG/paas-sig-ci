@@ -22,6 +22,7 @@ properties(
                         [
                                 string(defaultValue: '3.7.0-alpha.1', description: 'origin version', name: 'ORIGIN_VERSION'),
                                 string(defaultValue: '3.7', description: 'openshift-ansible version', name: 'OA_VERSION'),
+                                string(defaultValue: 'paas7-openshift-origin37-el7', description: 'target in the CBS build system', name: 'BUILD_TARGET'),
                                 booleanParam(defaultValue: true, description: 'build in CBS as a scratch build', name: 'SCRATCH'),
                                 booleanParam(defaultValue: true, description: 'build from the master branch', name: 'BE'),
                                 booleanParam(defaultValue: true, description: 'build origin', name: 'BUILD_ORIGIN'),
@@ -47,6 +48,10 @@ node (env.PAAS_SLAVE) {
                 } else {
                     ORIGIN_BRANCH = "v${env.ORIGIN_VERSION}"
                     OA_BRANCH = "${env.OA_VERSION}"
+                }
+
+                if ("${env.BE}" == "true") {
+                    BUILD_TARGET = 'paas7-openshift-future-el7'
                 }
 
                 def pypackages = ['ansible==2.1.0', 'jsonschema', 'functools32']
@@ -367,7 +372,8 @@ def cbs (String stage, String project) {
       -i $WORKSPACE/inventory/${TOPOLOGY}.inventory \
       $WORKSPACE/${CBS_PB} -e "project=${PROJECT}" \
       -e "scratch=${SCRATCH}" \
-      -e "bleeding_edge=${BE}"
+      -e "bleeding_edge=${BE}" \
+      -e "cbs_target=${BUILD_TARGET}"
     '''
     load("cbs_taskid_${env.PROJECT}.groovy")
 }
