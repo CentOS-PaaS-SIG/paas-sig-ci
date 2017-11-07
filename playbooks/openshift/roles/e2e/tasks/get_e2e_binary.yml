@@ -15,9 +15,9 @@
 
 - name: Set facts for rpm urls
   set_fact:
-    origin_clients_rpm_url: "{{ origin_clients_rpm_url | default('https://cbs.centos.org/repos/paas7-openshift-origin36-testing/x86_64/os/Packages/origin-clients-3.6.0-1.0.c4dd4cf.x86_64.rpm') }}"
-    origin_rpm_url: "{{ origin_rpm_url | default('https://cbs.centos.org/repos/paas7-openshift-origin36-testing/x86_64/os/Packages/origin-3.6.0-1.0.c4dd4cf.x86_64.rpm') }}"
-    origin_tests_rpm_url: "{{ origin_tests_rpm_url | default('https://cbs.centos.org/repos/paas7-openshift-origin36-testing/x86_64/os/Packages/origin-tests-3.6.0-1.0.c4dd4cf.x86_64.rpm') }}"
+    origin_clients_rpm_url: "{{ origin_clients_rpm_url | default('https://cbs.centos.org/repos/paas7-openshift-origin36-testing/x86_64/os/Packages/origin-clients-3.6.1-1.0.008f2d5.x86_64.rpm') }}"
+    origin_rpm_url: "{{ origin_rpm_url | default('https://cbs.centos.org/repos/paas7-openshift-origin36-testing/x86_64/os/Packages/origin-3.6.1-1.0.008f2d5.x86_64.rpm') }}"
+    origin_tests_rpm_url: "{{ origin_tests_rpm_url | default('https://cbs.centos.org/repos/paas7-openshift-origin36-testing/x86_64/os/Packages/origin-tests-3.6.1-1.0.008f2d5.x86_64.rpm') }}"
     dnf_failed: "{{ dnf_out['failed'] | default(false)  }}"
 
 - name: "Download rpms to /tmp/"
