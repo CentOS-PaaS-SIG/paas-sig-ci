@@ -40,6 +40,9 @@
   register: cbs_results
   when: scratch|bool == true
 
+- debug:
+    msg: "{{ cbs_results.stdout }}"
+
 #- name: set the cbs task id
 #  set_fact:
 #    cbs_taskid: "{{ cbs_results.stdout | regex_search(regexp,'\\1') }}"

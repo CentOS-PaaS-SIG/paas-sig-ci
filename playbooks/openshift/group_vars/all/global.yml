@@ -19,9 +19,3 @@ bleeding_edge: false
 
 # Force build
 force_build: false
-
-# building repo from source
-#repo_from_source: false
-
-# Packages to include for master node
-openshift_origin_common_pkgs: 'docker* kompose openvswitch* python-click python-httplib2 python-keyczar python-openvswitch python-paramiko sshpass'
