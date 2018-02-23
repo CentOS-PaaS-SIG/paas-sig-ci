@@ -57,10 +57,6 @@ node (env.PAAS_SLAVE) {
                     env.BUILD_TARGET = 'paas7-openshift-future-el7'
                 }
 
-                if ("${env.BUILD_TARGET}" == "") {
-                    env.BUILD_TARGET = ''
-                }
-
                 def pypackages = ['ansible==2.1.0', 'jsonschema', 'functools32']
                 currentStage = 'Provision-Node'
                 stage(currentStage) {
@@ -402,7 +398,7 @@ def cbs (String stage, String project) {
 
     sh '''
       #!/bin/bash
-      set -xeuo pipefail
+      set -xeo pipefail
 
       if [ "$BUILD_TARGET" == "" ]; then
         SHORT_VERSION=$( echo $ORIGIN_VERSION | awk -F'.' '{print $1$2}' )
