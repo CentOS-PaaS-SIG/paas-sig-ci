@@ -70,7 +70,7 @@ node (env.PAAS_SLAVE) {
                                        userRemoteConfigs: [
                                                [
                                                        refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                                       url: 'https://github.com/CentOS-PaaS-SIG/paas-sig-ci'
+                                                       url: 'https://github.com/arilivigni/paas-sig-ci'
                                                ]]]
                     }
                     duffyNode(currentStage, 'get')
