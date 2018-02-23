@@ -14,6 +14,7 @@ env.RUN_E2E_PB = 'paas-ci/playbooks/openshift/run_e2e_tests.yml'
 env.CBS_PB = 'paas-ci/playbooks/openshift/cbs.yml'
 env.TARGET_BASE_NAME = 'paas7-openshift-origin'
 env.TARGET_SFX_NAME = 'el7'
+env.PAAS_REPO = 'https://github.com/arilivigni/paas-sig-ci'
 env.VENV = env.JOB_NAME + '-' + UUID.randomUUID().toString().substring(0,5)
 
 properties(
@@ -70,7 +71,7 @@ node (env.PAAS_SLAVE) {
                                        userRemoteConfigs: [
                                                [
                                                        refspec: '+refs/tags/*:refs/remotes/origin/tags/* +refs/heads/master:refs/remotes/origin/master',
-                                                       url: 'https://github.com/arilivigni/paas-sig-ci'
+                                                       url: "${env.PAAS_REPO}"
                                                ]]]
                     }
                     duffyNode(currentStage, 'get')
