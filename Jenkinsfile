@@ -309,8 +309,8 @@ def prepCluster (String stage) {
 
       # see what we have in terms of inventory
       ansible-playbook -u root -vv \
-      -i $WORKSPACE/host.inventory \
-      $WORKSPACE/${PREP_PB} -e "repo_from_source=true"
+      -i $WORKSPACE/duffy_host.inventory \
+      $WORKSPACE/${PREP_PB}"
     '''
 }
 
@@ -326,10 +326,11 @@ def bfs (String stage, String project) {
     env.PROJECT = project ?: 'origin'
 
     bfsCommand = "ansible-playbook -u root -vv " +
-            "-i ${env.WORKSPACE}/host.inventory  " +
+            "-i ${env.WORKSPACE}/duffy_host.inventory  " +
             "${env.WORKSPACE}/${env.BFS_PB} " +
             "-e project=${project} " +
-            "-e bleeding_edge=${env.BE} "
+            "-e bleeding_edge=${env.BE} " +
+            "-e clean=true "
 
     if (env.PROJECT == 'origin') {
         bfsCommand += "-e version=${env.ORIGIN_VERSION}"
@@ -407,7 +408,7 @@ def cbs (String stage, String project) {
 
       # see what we have in terms of inventory
       ansible-playbook -u root -vv \
-      -i $WORKSPACE/host.inventory \
+      -i $WORKSPACE/duffy_host.inventory \
       $WORKSPACE/${CBS_PB} -e "project=${PROJECT}" \
       -e "scratch=${SCRATCH}" \
       -e "bleeding_edge=${BE}" \
