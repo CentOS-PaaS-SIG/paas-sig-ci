@@ -57,6 +57,10 @@ node (env.PAAS_SLAVE) {
                     env.BUILD_TARGET = 'paas7-openshift-future-el7'
                 }
 
+                if ("${env.BUILD_TARGET}" == "") {
+                    env.BUILD_TARGET = ''
+                }
+
                 def pypackages = ['ansible==2.1.0', 'jsonschema', 'functools32']
                 currentStage = 'Provision-Node'
                 stage(currentStage) {
