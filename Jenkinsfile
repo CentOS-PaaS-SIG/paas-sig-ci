@@ -283,12 +283,12 @@ def duffyNode (String stage, String action) {
     
         if [ "${ACTION}" == "get" ]; then
             cico node get
-            DUFFY_HOST=$( cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $1}' )
-            DUFFY_SSID=$( cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $2}' )
-            echo ${DUFFY_HOST} > host.inventory
+            cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $1}' > ${WORKSPACE}/duffy_host.inventory
+            cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $2}' > ${WORKSPACE}/duffy_ssid.inventory
+            DUFFY_HOST=$( cat ${WORKSPACE}/duffy_host.inventory )
             sed -i "s/${DUFFY_HOST}//g" ~/.ssh/known_hosts    
         else
-            DUFFY_SSID=$( cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $2}' )
+            DUFFY_SSID=$( cat ${WORKSPACE}/duffy_ssid.inventory )
             cico node done ${DUFFY_SSID} 
         fi
     '''
