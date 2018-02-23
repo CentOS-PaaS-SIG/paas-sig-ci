@@ -25,6 +25,3 @@ force_build: false
 
 # Packages to include for master node
 #openshift_origin_common_pkgs: 'docker* kompose openvswitch* python-click python-httplib2 python-keyczar python-openvswitch python-paramiko sshpass'
-
-# Force build
-force_build: false
