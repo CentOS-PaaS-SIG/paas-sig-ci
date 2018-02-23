@@ -140,9 +140,9 @@ node (env.PAAS_SLAVE) {
             } finally {
                 currentStage = 'Return-Node'
                 stage(currentStage) {
-                    if( !(fileExists("${env.VENV}")) ) {
-                        setupVenv(pypackages)
-                    }
+//                    if( !(fileExists("${env.VENV}")) ) {
+//                        setupVenv(pypackages)
+//                    }
 //                    teardownDuffyLinchPin(currentStage)
                     duffyNode(currentStage, 'done')
                 }
