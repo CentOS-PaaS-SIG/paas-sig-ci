@@ -27,14 +27,14 @@
   when: bleeding_edge|bool == true
 
 - name: "cbs build target for {{ project }} from srpm"
-  shell: "cbs build --wait {{ cbs_target }} {{ srpm }}"
+  shell: "cbs build --wait {{ cbs_target }} {{ tito_output_srpm.stdout }}"
   args:
     chdir: "{{ openshift_repo_path }}"
   register: cbs_results
   when: scratch|bool == false
 
 - name: "cbs build scratch target for {{ project }} from srpm"
-  shell: "cbs build --wait --scratch {{ cbs_target }} {{ srpm }}"
+  shell: "cbs build --wait --scratch {{ cbs_target }} {{ tito_output_srpm.stdout }}"
   args:
     chdir: "{{ openshift_repo_path }}"
   register: cbs_results
