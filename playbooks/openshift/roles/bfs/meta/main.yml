@@ -1,3 +1,4 @@
 ---
-#dependencies:
+dependencies:
+  - { role: common }
 #  - { role: nginx, when: "'repo_host' in group_names" }

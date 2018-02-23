@@ -12,6 +12,8 @@ env.BFS_PB = 'paas-ci/playbooks/openshift/bfs.yml'
 env.DEPLOY_AOSI_PB = 'paas-ci/playbooks/openshift/deploy_aosi.yml'
 env.RUN_E2E_PB = 'paas-ci/playbooks/openshift/run_e2e_tests.yml'
 env.CBS_PB = 'paas-ci/playbooks/openshift/cbs.yml'
+env.TARGET_BASE_NAME = 'paas7-openshift-origin'
+env.TARGET_SFX_NAME = 'el7'
 env.VENV = env.JOB_NAME + '-' + UUID.randomUUID().toString().substring(0,5)
 
 properties(
@@ -20,9 +22,9 @@ properties(
                 disableConcurrentBuilds(),
                 parameters(
                         [
-                                string(defaultValue: '3.7.0-alpha.1', description: 'origin version', name: 'ORIGIN_VERSION'),
-                                string(defaultValue: '3.7', description: 'openshift-ansible version', name: 'OA_VERSION'),
-                                string(defaultValue: 'paas7-openshift-origin37-el7', description: 'target in the CBS build system', name: 'BUILD_TARGET'),
+                                string(defaultValue: '3.9.0-alpha.4', description: 'origin version', name: 'ORIGIN_VERSION'),
+                                string(defaultValue: '3.9', description: 'openshift-ansible version', name: 'OA_VERSION'),
+                                string(defaultValue: '', description: 'target in the CBS build system', name: 'BUILD_TARGET'),
                                 booleanParam(defaultValue: true, description: 'build in CBS as a scratch build', name: 'SCRATCH'),
                                 booleanParam(defaultValue: true, description: 'build from the master branch', name: 'BE'),
                                 booleanParam(defaultValue: true, description: 'build origin', name: 'BUILD_ORIGIN'),
@@ -51,11 +53,11 @@ node (env.PAAS_SLAVE) {
                 }
 
                 if ("${env.BE}" == "true") {
-                    BUILD_TARGET = 'paas7-openshift-future-el7'
+                    env.BUILD_TARGET = 'paas7-openshift-future-el7'
                 }
 
                 def pypackages = ['ansible==2.1.0', 'jsonschema', 'functools32']
-                currentStage = 'Provision-Cluster'
+                currentStage = 'Provision-Node'
                 stage(currentStage) {
                     // Checkout this SCM
                     dir('paas-ci') {
@@ -71,16 +73,17 @@ node (env.PAAS_SLAVE) {
                                                        url: 'https://github.com/CentOS-PaaS-SIG/paas-sig-ci'
                                                ]]]
                     }
-                    if( !(fileExists("${env.VENV}")) ) {
-                        setupVenv(pypackages)
-                    }
-                    provisionDuffyLinchPin(currentStage)
+                    duffyNode(currentStage, 'get')
+//                    if( !(fileExists("${env.VENV}")) ) {
+//                        setupVenv(pypackages)
+//                    }
+//                    provisionDuffyLinchPin(currentStage)
                 }
-                currentStage = 'Prep-Cluster'
-                stage(currentStage) {
-                    prepCluster(currentStage)
-                }
-                currentStage = 'Build-Origin'
+//                currentStage = 'Prep-Cluster'
+//                stage(currentStage) {
+//                    prepCluster(currentStage)
+//                }
+                currentStage = 'Build-Origin-SRPM'
                 stage(currentStage){
                     if ("${env.BUILD_ORIGIN}" == "true") {
                         currentBuild.displayName = "origin - ${ORIGIN_BRANCH}"
@@ -90,7 +93,7 @@ node (env.PAAS_SLAVE) {
                         currentBuild.displayName = "NOT building origin"
                     }
                 }
-                currentStage = 'Build-Openshift-Ansbile'
+                currentStage = 'Build-Openshift-Ansbile-SRPM'
                 stage(currentStage){
                     if ("${env.BUILD_OA}" == "true") {
                         currentBuild.displayName += " : openshift-ansible - ${OA_BRANCH}"
@@ -135,12 +138,13 @@ node (env.PAAS_SLAVE) {
                 // Throw the error
                 throw e
             } finally {
-                currentStage = 'Teardown-Cluster'
+                currentStage = 'Return-Node'
                 stage(currentStage) {
                     if( !(fileExists("${env.VENV}")) ) {
                         setupVenv(pypackages)
                     }
-                    teardownDuffyLinchPin(currentStage)
+//                    teardownDuffyLinchPin(currentStage)
+                    duffyNode(currentStage, 'done')
                 }
                 currentBuild.description = ''
                 if( fileExists("cbs_taskid_origin.groovy") ) {
@@ -262,6 +266,34 @@ def duffyLinchPin (Map lpMap) {
 }
 
 /**
+ * Method to get/release Duffy node
+ * @param stage - Current stage
+ * @param action - get or done
+ * @return
+ */
+def duffyNode (String stage, String action) {
+
+    echo "Currently in stage: ${stage}"
+    env.ACTION = action
+
+    sh '''
+        #!/bin/bash
+        set -xeuo pipefail
+    
+        if [ "${ACTION}" == "get" ]; then
+            cico node get
+            DUFFY_HOST=$( cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $1}' )
+            DUFFY_SSID=$( cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $2}' )
+            echo ${DUFFY_HOST} > host.inventory
+            sed -i "s/${DUFFY_HOST}//g" ~/.ssh/known_hosts    
+        else
+            DUFFY_SSID=$( cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $2}' )
+            cico node done ${DUFFY_SSID} 
+        fi
+    '''
+}
+
+/**
  * Method to prep and Openshift cluster
  * @param stage - Current stage
  * @return
@@ -276,7 +308,7 @@ def prepCluster (String stage) {
 
       # see what we have in terms of inventory
       ansible-playbook -u root -vv \
-      -i $WORKSPACE/inventory/${TOPOLOGY}.inventory \
+      -i $WORKSPACE/host.inventory \
       $WORKSPACE/${PREP_PB} -e "repo_from_source=true"
     '''
 }
@@ -293,8 +325,8 @@ def bfs (String stage, String project) {
     env.PROJECT = project ?: 'origin'
 
     bfsCommand = "ansible-playbook -u root -vv " +
-            "-i ${env.WORKSPACE}/inventory/${env.TOPOLOGY}.inventory " +
-            "${env.WORKSPACE}/${env.BFS_PB} -e repo_from_source=true " +
+            "-i ${env.WORKSPACE}/host.inventory  " +
+            "${env.WORKSPACE}/${env.BFS_PB}" +
             "-e project=${project} " +
             "-e bleeding_edge=${env.BE} "
 
@@ -367,9 +399,14 @@ def cbs (String stage, String project) {
       #!/bin/bash
       set -xeuo pipefail
 
+      if [ "$BUILD_TARGET" == "" ]; then
+        SHORT_VERSION=$( echo $ORIGIN_VERSION | awk -F'.' '{print $1$2}' )
+        BUILD_TARGET="${TARGET_BASE_NAME}${SHORT_VERSION}-${TARGET_SFX_NAME}"
+      fi
+
       # see what we have in terms of inventory
       ansible-playbook -u root -vv \
-      -i $WORKSPACE/inventory/${TOPOLOGY}.inventory \
+      -i $WORKSPACE/host.inventory \
       $WORKSPACE/${CBS_PB} -e "project=${PROJECT}" \
       -e "scratch=${SCRATCH}" \
       -e "bleeding_edge=${BE}" \
