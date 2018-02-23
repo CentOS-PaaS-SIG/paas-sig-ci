@@ -1,25 +1,25 @@
 ---
-- name: build srpm with tito for openshift-ansible
-  shell: tito build --offline --srpm --rpmbuild-options="--define 'dist .el7'" | grep 'src.rpm' | awk '{print $NF}'
+- name: "build srpm with tito for {{ project }}"
+  shell: tito build --srpm --rpmbuild-options="--define 'dist .el7'" --output={{ openshift_repo_path }} | grep 'src.rpm' | awk '{print $NF}'
   args:
     chdir: "{{ openshift_repo_path }}"
   register: tito_output_srpm
-  when: project == "openshift-ansible"
+#  when: project == "openshift-ansible"
 
-- name: set output of srpm for openshift-ansible
+- name: "Set output of srpm for {{ project }}"
   set_fact:
     srpm: "{{ tito_output_srpm.stdout }}"
-  when: project == "openshift-ansible"
+#  when: project == "openshift-ansible"
 
-- name: get srpm that was generated for origin
-  shell: ls {{ openshift_repo_path}}/_output/local/releases/rpms/*src.rpm
-  register: ls_output_srpm
-  when: project == "origin"
-
-- name: set output of srpm for origin
-  set_fact:
-    srpm: "{{ ls_output_srpm.stdout }}"
-  when: project == "origin"
+#- name: get srpm that was generated for origin
+#  shell: ls {{ openshift_repo_path}}/_output/local/releases/rpms/*src.rpm
+#  register: ls_output_srpm
+#  when: project == "origin"
+#
+#- name: set output of srpm for origin
+#  set_fact:
+#    srpm: "{{ ls_output_srpm.stdout }}"
+#  when: project == "origin"
 
 - name: set cbs_target to paas7-openshift-future-el7 for bleeding_edge
   set_fact:
