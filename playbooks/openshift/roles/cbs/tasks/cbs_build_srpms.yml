@@ -1,6 +1,6 @@
 ---
 - name: "build srpm with tito for {{ project }}"
-  shell: tito build --srpm --rpmbuild-options="--define 'dist .el7'" --output={{ openshift_repo_path }} | grep 'src.rpm' | awk '{print $NF}'
+  shell: tito build --test --srpm --rpmbuild-options="--define 'dist .el7'" --output={{ openshift_repo_path }} | grep 'src.rpm' | awk '{print $NF}'
   args:
     chdir: "{{ openshift_repo_path }}"
   register: tito_output_srpm
