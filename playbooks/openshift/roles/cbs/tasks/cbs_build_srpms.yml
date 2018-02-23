@@ -4,22 +4,10 @@
   args:
     chdir: "{{ openshift_repo_path }}"
   register: tito_output_srpm
-#  when: project == "openshift-ansible"
 
 - name: "Set output of srpm for {{ project }}"
   set_fact:
     srpm: "{{ tito_output_srpm.stdout }}"
-#  when: project == "openshift-ansible"
-
-#- name: get srpm that was generated for origin
-#  shell: ls {{ openshift_repo_path}}/_output/local/releases/rpms/*src.rpm
-#  register: ls_output_srpm
-#  when: project == "origin"
-#
-#- name: set output of srpm for origin
-#  set_fact:
-#    srpm: "{{ ls_output_srpm.stdout }}"
-#  when: project == "origin"
 
 - name: set cbs_target to paas7-openshift-future-el7 for bleeding_edge
   set_fact:
@@ -43,35 +31,35 @@
 - debug:
     msg: "{{ cbs_results.stdout }}"
 
-#- name: set the cbs task id
-#  set_fact:
-#    cbs_taskid: "{{ cbs_results.stdout | regex_search(regexp,'\\1') }}"
-#  vars:
-#    regexp: '.*taskID=([0-9]+).*'
-#
-#- name: "cbs_taskid"
-#  debug:
-#    msg: "cbs taskID = {{ cbs_taskid | join(' ') }}"
-#
-#- name: "make sure the {{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy file is gone"
-#  file:
-#    state: absent
-#    path: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
-#
-#- name: "set project_mod so we lose the dash for openshift-ansible"
-#  set_fact:
-#     project_mod: "{{ project | regex_replace('-','_') }}"
-#
-#- name: "create cbs_taskid_{{ project }}.groovy file with the taskid"
-#  lineinfile:
-#    path: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
-#    line: "env.CBS_TASKID_{{ project_mod }}=\"{{ cbs_taskid | join(' ') }}\""
-#    state: present
-#    create: yes
-#
-#- name: "fetch file {{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
-#  fetch:
-#    src: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
-#    dest: "{{ lookup('env','PWD') }}/cbs_taskid_{{ project }}.groovy"
-#    flat: yes
+- name: set the cbs task id
+  set_fact:
+    cbs_taskid: "{{ cbs_results.stdout | regex_search(regexp,'\\1') }}"
+  vars:
+    regexp: '.*taskID=([0-9]+).*'
+
+- name: "cbs_taskid"
+  debug:
+    msg: "cbs taskID = {{ cbs_taskid | join(' ') }}"
+
+- name: "make sure the {{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy file is gone"
+  file:
+    state: absent
+    path: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+
+- name: "set project_mod so we lose the dash for openshift-ansible"
+  set_fact:
+     project_mod: "{{ project | regex_replace('-','_') }}"
+
+- name: "create cbs_taskid_{{ project }}.groovy file with the taskid"
+  lineinfile:
+    path: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+    line: "env.CBS_TASKID_{{ project_mod }}=\"{{ cbs_taskid | join(' ') }}\""
+    state: present
+    create: yes
+
+- name: "fetch file {{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+  fetch:
+    src: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+    dest: "{{ lookup('env','PWD') }}/cbs_taskid_{{ project }}.groovy"
+    flat: yes
 
