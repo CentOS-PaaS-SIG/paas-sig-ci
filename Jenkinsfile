@@ -326,7 +326,7 @@ def bfs (String stage, String project) {
 
     bfsCommand = "ansible-playbook -u root -vv " +
             "-i ${env.WORKSPACE}/host.inventory  " +
-            "${env.WORKSPACE}/${env.BFS_PB}" +
+            "${env.WORKSPACE}/${env.BFS_PB} " +
             "-e project=${project} " +
             "-e bleeding_edge=${env.BE} "
 
