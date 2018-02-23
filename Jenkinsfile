@@ -147,13 +147,13 @@ node (env.PAAS_SLAVE) {
 //                    teardownDuffyLinchPin(currentStage)
                     duffyNode(currentStage, 'done')
                 }
-//                currentBuild.description = ''
-//                if( fileExists("cbs_taskid_origin.groovy") ) {
-//                    currentBuild.description = "<a href=\"https://cbs.centos.org/koji/taskinfo?taskID=${env.CBS_TASKID_origin}\">origin_taskID = ${env.CBS_TASKID_origin}</a> :"
-//                }
-//                if( fileExists("cbs_taskid_openshift-ansible.groovy") ) {
-//                    currentBuild.description += ": <a href=\"https://cbs.centos.org/koji/taskinfo?taskID=${env.CBS_TASKID_openshift_ansible}\">O-A_taskID = ${env.CBS_TASKID_openshift_ansible}</a>"
-//                }
+                currentBuild.description = ''
+                if( fileExists("cbs_taskid_origin.groovy") ) {
+                    currentBuild.description = "<a href=\"https://cbs.centos.org/koji/taskinfo?taskID=${env.CBS_TASKID_origin}\">origin_taskID = ${env.CBS_TASKID_origin}</a> :"
+                }
+                if( fileExists("cbs_taskid_openshift-ansible.groovy") ) {
+                    currentBuild.description += ": <a href=\"https://cbs.centos.org/koji/taskinfo?taskID=${env.CBS_TASKID_openshift_ansible}\">O-A_taskID = ${env.CBS_TASKID_openshift_ansible}</a>"
+                }
                 // Archive our artifacts
                 step([$class: 'ArtifactArchiver', allowEmptyArchive: true, artifacts: '*.log,*.txt,*.groovy', fingerprint: true])
             }
@@ -413,5 +413,7 @@ def cbs (String stage, String project) {
       -e "bleeding_edge=${BE}" \
       -e "cbs_target=${BUILD_TARGET}"
     '''
-    load("cbs_taskid_${env.PROJECT}.groovy")
+    if( fileExists("cbs_taskid_${env.PROJECT}.groovy") ) {
+        load("cbs_taskid_${env.PROJECT}.groovy")
+    }
 }
