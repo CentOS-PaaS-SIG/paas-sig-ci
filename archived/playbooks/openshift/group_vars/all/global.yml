@@ -6,10 +6,10 @@
 project: origin
 
 # Version to setup of project
-version: 3.10.0-alpha.0
+version: 3.9.0-alpha.4
 
 # version to setup of origin
-origin_version: 3.10.0-alpha.0
+origin_version: 3.9.0-alpha.4
 
 # version of openshift-ansible
 oa_version: 3.9

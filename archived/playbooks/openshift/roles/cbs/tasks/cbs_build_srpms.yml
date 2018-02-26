@@ -1,0 +1,65 @@
+---
+- name: "build srpm with tito for {{ project }}"
+  shell: tito build --test --srpm --rpmbuild-options="--define 'dist .el7'" --output={{ openshift_repo_path }} | grep 'src.rpm' | awk '{print $NF}'
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  register: tito_output_srpm
+
+- name: "Set output of srpm for {{ project }}"
+  set_fact:
+    srpm: "{{ tito_output_srpm.stdout }}"
+
+- name: set cbs_target to paas7-openshift-future-el7 for bleeding_edge
+  set_fact:
+    cbs_target: paas7-openshift-future-el7
+  when: bleeding_edge|bool == true
+
+- name: "cbs build target for {{ project }} from srpm"
+  shell: "cbs build --wait {{ cbs_target }} {{ srpm }}"
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  register: cbs_results
+  when: scratch|bool == false
+
+- name: "cbs build scratch target for {{ project }} from srpm"
+  shell: "cbs build --wait --scratch {{ cbs_target }} {{ srpm }}"
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  register: cbs_results
+  when: scratch|bool == true
+
+- debug:
+    msg: "{{ cbs_results.stdout }}"
+
+- name: set the cbs task id
+  set_fact:
+    cbs_taskid: "{{ cbs_results.stdout | regex_search(regexp,'\\1') }}"
+  vars:
+    regexp: '.*taskID=([0-9]+).*'
+
+- name: "cbs_taskid"
+  debug:
+    msg: "cbs taskID = {{ cbs_taskid | join(' ') }}"
+
+- name: "make sure the {{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy file is gone"
+  file:
+    state: absent
+    path: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+
+- name: "set project_mod so we lose the dash for openshift-ansible"
+  set_fact:
+     project_mod: "{{ project | regex_replace('-','_') }}"
+
+- name: "create cbs_taskid_{{ project }}.groovy file with the taskid"
+  lineinfile:
+    path: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+    line: "env.CBS_TASKID_{{ project_mod }}=\"{{ cbs_taskid | join(' ') }}\""
+    state: present
+    create: yes
+
+- name: "fetch file {{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+  fetch:
+    src: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
+    dest: "{{ lookup('env','PWD') }}/cbs_taskid_{{ project }}.groovy"
+    flat: yes
+

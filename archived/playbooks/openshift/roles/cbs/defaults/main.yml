@@ -7,7 +7,7 @@ project: origin
 openshift_repo_path: /root/{{ project }}
 
 # cbs target
-cbs_target: paas7-openshift-origin39-el7
+cbs_target: paas7-openshift-origin37-el7
 
 # scratch
 scratch: false

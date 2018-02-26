@@ -1,0 +1,83 @@
+- name: set latest tag from git tag
+  shell: "git tag --list '{{ project }}-{{ version }}.*' | sort -V |sed \"s/{{ project }}-{{ version }}.//\" | tail -n1"
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  register: LATEST_TAG
+
+- debug:
+    msg: "PaaS-sig Props: {{ item.prop }} [ {{ item.value }} ]"
+  with_items:
+    - { prop: 'project', value: "{{ project }}" }
+    - { prop: 'version', value: "{{ version }}" }
+    - { prop: 'latest_tag', value: "{{ LATEST_TAG.stdout }}" }
+    - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
+
+- name: check if changes have been applied
+  shell: "git log -n1 | grep 'Update variants for origin - {{ LATEST_TAG.stdout }}'"
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  ignore_errors: yes
+  register: git_log
+
+- name: checkout openshift-ansible version and latest tag
+  shell: "git checkout {{ project }}-{{ version }}.{{ LATEST_TAG.stdout }}"
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  when: (git_log.stdout == "" and bleeding_edge|bool == false)
+
+- name: update version of origin
+  lineinfile:
+    dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
+    regexp: "Version\\('1\\.2', 'origin'\\).*"
+    line: "                     Version('{{ origin_version.split('.')[0] }}.{{ origin_version.split('.')[1] }}', 'origin')"
+    backrefs: yes
+    state: present
+  when: git_log.stdout == ""
+
+- name: update variant
+  lineinfile:
+    dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
+    regexp: "^DISPLAY_VARIANTS =.*"
+    line: "DISPLAY_VARIANTS = (origin, OSE, REG,)"
+    backrefs: yes
+    state: present
+  when: git_log.stdout == ""
+
+- name: git commit updated variants for origin
+  shell: git commit -m "Update variants for origin - {{ LATEST_TAG.stdout }}" utils/src/ooinstall/variants.py
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  when: git_log.stdout == ""
+
+# Add in here direct RPM links, for things that are still pending repodata
+#- name: Direct RPM links, for things that are still pending repodata
+#  command: yum -y localinstall {{ item }}
+#  with_items:
+#    - https://kojipkgs.fedoraproject.org//packages/python-distro/1.0.1/2.el7/noarch/python2-distro-1.0.1-2.el7.noarch.rpm
+#    - https://kojipkgs.fedoraproject.org/packages/bodhi/2.10.1/2.el7/noarch/python2-bodhi-2.10.1-2.el7.noarch.rpm
+#    - https://kojipkgs.fedoraproject.org/packages/bodhi/2.10.1/2.el7/noarch/bodhi-client-2.10.1-2.el7.noarch.rpm
+#
+#- name: install tito and builddeps
+#  yum:
+#    name: "{{ item }}"
+#    state: present
+#  with_items:
+#    - tito
+#    - createrepo_c
+#
+#- name: ensure builddeps are installed
+#  shell: yum-builddep origin.spec -y
+#  args:
+#    chdir: "{{ openshift_repo_path }}"
+#
+#- name: build packages
+#  shell: tito build --test --rpm --rpmbuild-options="--define 'dist .el7'" --output={{ openshift_repo_path }}
+#  args:
+#    chdir: "{{ openshift_repo_path }}"
+#  register: pkgs_built
+#
+#- name: generate repo
+#  shell: createrepo_c .
+#  args:
+#    chdir: "{{ web_docroot }}/{{ project }}/{{ arch }}"
+#  when: pkgs_built|success

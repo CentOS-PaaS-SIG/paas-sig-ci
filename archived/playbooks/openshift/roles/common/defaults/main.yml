@@ -1,0 +1,16 @@
+---
+# file vars/main.yml
+setup_pkgs:
+- wget
+- git
+- rsync
+- net-tools
+- bind-utils
+- iptables-services
+- bridge-utils
+- gcc
+- python-virtualenv
+- docker
+- yum-utils
+- tito
+- go
