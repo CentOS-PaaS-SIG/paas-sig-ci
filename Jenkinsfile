@@ -216,7 +216,7 @@ def cbs (String stage, String project) {
       set -xeo pipefail
 
       if [ "$BUILD_TARGET" == "" ]; then
-        SHORT_VERSION=$( echo $ORIGIN_VERSION | awk -F'.' '{print $1$2}' )
+        SHORT_VERSION=$( echo $ORIGIN_VERSION | awk -F'.' '{print $1$2}' | sed 's/v//' )
         BUILD_TARGET="${TARGET_BASE_NAME}${SHORT_VERSION}-${TARGET_SFX_NAME}"
       fi
 
