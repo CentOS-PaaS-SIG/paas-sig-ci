@@ -5,14 +5,22 @@
 #   project: openshift-ansible
 project: origin
 
-# Version to setup of project
-version: 3.10.0-alpha.0
-
 # version to setup of origin
-origin_version: 3.10.0-alpha.0
+# Note: originally we added the v to the version, but for consistency this should be the exact version
+# ex. 3.10.0-alpha.0 becomes v3.10.0-alpha.0
+# To find this out:
+# git ls-remote --tags https://github.com/openshift/origin | sort -t '/' -k 3 -V
+# | tail -1 | awk '{print $2}' | sed 's/refs\/tags\/\(.*\)/\1/' | sed 's/\^{}//'
+origin_version: v3.10.0-alpha.0
 
 # version of openshift-ansible
-oa_version: 3.9
+# Note: originally version was [0-9].[0-9], but for consistency use the full version
+# ex. 3.9 becomes openshift-ansible-3.9.0-0.53.0
+# To find this out:
+# git ls-remote --tags https://github.com/openshift/openshift-ansible \
+# | egrep 'openshift-ansible-[0-9]' | sort -t '/' -k 3 -V | tail -1 | awk '{print $2}' \
+# | sed 's/refs\/tags\/\(.*\)/\1/' | sed 's/\^{}//'
+oa_version: openshift-ansible-3.9.0-0.53.0
 
 # bleeding edge version
 bleeding_edge: false
