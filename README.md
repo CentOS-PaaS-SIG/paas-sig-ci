@@ -1,19 +1,13 @@
 # Continuous Integration for the CentOS PaaS SIG
 
-This repository is designed for the tooling of Continuous Integration tests for
+This repository is designed for the tooling of Continuous Integration of
 the CentOS Platform as a Service (PaaS) Special Interest Group (SIG).
 
-The repository is broken up into several different components, as described below.
-For the most part, this repository generally uses
-[linch-pin*](https://github.com/CentOS-PaaS-SIG/linch-pin)
-to provision hosts, calling the
-[duffy-ansible-module](https://github.com/CentOS-PaaS-SIG/duffy-ansible-module),
-which provisions [duffy](https://wiki.centos.org/QaWiki/CI/Duffy) hosts.
-
+## Project Structure
 The paas-sig-ci repository is structured as such:
 
     pass-sig-ci/
-    ├── archived
+    ├── archived (old way of integration)
     ├── Jenkinsfile
     ├── JenkinsfileTrigger
     ├── playbooks
