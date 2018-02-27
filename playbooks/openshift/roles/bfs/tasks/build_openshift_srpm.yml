@@ -1,0 +1,63 @@
+---
+## Note: originally we added the v to the version, but for consistency this should be the exact version
+## ex. 3.10.0-alpha.0 becomes v3.10.0-alpha.0
+# To find this out:
+# git ls-remote --tags https://github.com/openshift/origin | sort -t '/' -k 3 -V
+# | tail -1 | awk '{print $2}' | sed 's/refs\/tags\/\(.*\)/\1/' | sed 's/\^{}//'
+- debug:
+    msg: "PaaS-sig Props: {{ item.prop }} [ {{ item.value }} ]"
+  with_items:
+    - { prop: 'project', value: "{{ project }}" }
+    - { prop: 'origin_version', value: "{{ origin_version }}" }
+    - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
+
+- name: Check if changes have already been applied
+  shell: "git log -n1 | grep 'Fixup spec file - {{ origin_version }}'"
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  ignore_errors: yes
+  register: git_log
+
+- name: checkout origin version
+  shell: git checkout {{ origin_version }}
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  when: (git_log.stdout == "" and not bleeding_edge)
+
+- name: tag origin version
+  shell: git tag -d {{ origin_version }}
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  when: (git_log.stdout == "" and not bleeding_edge)
+
+- name: update git vars in origin.spec
+  lineinfile:
+    dest: "{{ openshift_repo_path }}/origin.spec"
+    regexp: "^%global os_git_vars .*$"
+    line: "%global os_git_vars OS_GIT_VERSION={{ origin_version }} OS_GIT_COMMIT= OS_GIT_MAJOR={{ origin_version.split('.')[0] }} OS_GIT_MINOR={{ origin_version.split('.')[1] }}+ OS_GIT_TREE_STATE='clean' OS_GIT_CATALOG_VERSION=''"
+    backrefs: yes
+    state: present
+  when: git_log.stdout == ""
+
+- name: update git version in origin.spec
+  lineinfile:
+    dest: "{{ openshift_repo_path }}/origin.spec"
+    regexp: "^Version:.*$"
+    line: "Version:        {{ origin_version.split('-')[0] }}"
+    backrefs: yes
+    state: present
+  when: git_log.stdout == ""
+
+- name: update git release in origin.spec
+  lineinfile:
+    dest: "{{ openshift_repo_path }}/origin.spec"
+    regexp: "^Release:.*$"
+    line: "Release:        0.{{ origin_version.split('-')[1] }}%{package_dist}"
+    backrefs: yes
+    state: present
+
+- name: git commit changes locally
+  shell: git commit -m "Fixup spec file - {{ origin_version }}" origin.spec
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  when: git_log.stdout == ""

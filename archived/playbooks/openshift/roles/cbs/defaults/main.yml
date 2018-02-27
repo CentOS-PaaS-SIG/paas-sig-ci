@@ -1,13 +1,13 @@
 ---
-# file defaults/{{ project }}
+# defaults file for cbs
 # Project for sig-paas: origin or openshift-ansible
 project: origin
 
 # Path to repo for {{ project }}
 openshift_repo_path: /root/{{ project }}
 
-# Architecture
-arch: x86_64
+# cbs target
+cbs_target: paas7-openshift-origin37-el7
 
-# Cleanup before building {{ project }} from source
-cleanup: false
+# scratch
+scratch: false
