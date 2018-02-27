@@ -6,7 +6,7 @@ env.BFS_PB = 'paas-ci/playbooks/openshift/bfs.yml'
 env.CBS_PB = 'paas-ci/playbooks/openshift/cbs.yml'
 env.TARGET_BASE_NAME = 'paas7-openshift-origin'
 env.TARGET_SFX_NAME = 'el7'
-env.PAAS_REPO = 'https://github.com/arilivigni/paas-sig-ci'
+env.PAAS_REPO = 'https://github.com/CentOS-PaaS-SIG/paas-sig-ci'
 env.VENV = env.JOB_NAME + '-' + UUID.randomUUID().toString().substring(0,5)
 
 properties(
@@ -15,7 +15,7 @@ properties(
                 disableConcurrentBuilds(),
                 parameters(
                         [
-                                string(defaultValue: 'v3.10.0-alpha.0', description: 'origin version', name: 'ORIGIN_VERSION'),
+                                string(defaultValue: 'v3.9.0-alpha.4', description: 'origin version', name: 'ORIGIN_VERSION'),
                                 string(defaultValue: 'openshift-ansible-3.9.0-0.53.0', description: 'openshift-ansible version', name: 'OA_VERSION'),
                                 string(defaultValue: '', description: 'target in the CBS build system', name: 'BUILD_TARGET'),
                                 booleanParam(defaultValue: true, description: 'build in CBS as a scratch build', name: 'SCRATCH'),
@@ -41,7 +41,7 @@ node (env.PAAS_SLAVE) {
                     ORIGIN_BRANCH = 'master'
                     OA_BRANCH = 'master'
                 } else {
-                    ORIGIN_BRANCH = "v${env.ORIGIN_VERSION}"
+                    ORIGIN_BRANCH = "${env.ORIGIN_VERSION}"
                     OA_BRANCH = "${env.OA_VERSION}"
                 }
 
@@ -80,11 +80,11 @@ node (env.PAAS_SLAVE) {
                 currentStage = 'Build-Openshift-Ansbile-SRPM'
                 stage(currentStage){
                     if ("${env.BUILD_OA}" == "true") {
-                        currentBuild.displayName += " : openshift-ansible - ${OA_BRANCH}"
+                        currentBuild.displayName += " :: o-a - ${OA_BRANCH}"
                         bfs(currentStage, 'openshift-ansible')
                     } else {
                         echo "NOT Building openshift-ansible"
-                        currentBuild.displayName += " : NOT building openshift-ansible"
+                        currentBuild.displayName += " :: NOT building openshift-ansible"
                     }
                 }
                 currentStage = 'cbs-origin'
