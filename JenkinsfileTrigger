@@ -1,0 +1,86 @@
+env.PAAS_SLAVE = "paas-sig-ci-slave01"
+
+properties(
+        [
+                buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '25', daysToKeepStr: '', numToKeepStr: '50')),
+                disableConcurrentBuilds(),
+                pipelineTriggers([cron('H */3 * * *')]),
+        ]
+)
+
+node (env.PAAS_SLAVE) {
+    def currentStage = ""
+    ansiColor('xterm') {
+        timestamps {
+            try {
+                currentStage = 'PaaS-CI-CD-Trigger'
+                stage(currentStage) {
+                    if( fileExists("versions.log.groovy") ) {
+                        load('versions.log.groovy')
+                        sh '''
+                            CURRENT_ORIGIN_VERSION=$( git ls-remote --tags https://github.com/openshift/origin | sort -t '/' -k 3 -V | tail -1 | awk '{print $2}' | sed 's/refs\\/tags\\/\\(.*\\)/\\1/' | sed 's/\\^{}//' )
+                            CURRENT_OA_VERSION=$( git ls-remote --tags https://github.com/openshift/openshift-ansible | egrep 'openshift-ansible-[0-9]' | sort -t '/' -k 3 -V | tail -1 | awk '{print $2}' | sed 's/refs\\/tags\\/\\(.*\\)/\\1/' | sed 's/\\^{}//' )
+
+                            if [ "${CURRENT_ORIGIN_VERSION}" != "${ORIGIN_VERSION}" ]; then
+                                touch BUILD_ORIGIN
+                            fi
+                            if [ "${CURRENT_OA_VERSION}" != "${OA_VERSION}" ]; then
+                                touch BUILD_OA
+                            fi
+                        '''
+                    } else {
+                        touch BUILD_ORIGIN
+                        touch BUILD_OA
+                    }
+                    sh '''
+                        echo "ORIGIN_VERSION=$( git ls-remote --tags https://github.com/openshift/origin | sort -t '/' -k 3 -V | tail -1 | awk '{print $2}' | sed 's/refs\\/tags\\/\\(.*\\)/\\1/' | sed 's/\\^{}//' )" > versions.log
+                        echo "OA_VERSION=$( git ls-remote --tags https://github.com/openshift/openshift-ansible | egrep 'openshift-ansible-[0-9]' | sort -t '/' -k 3 -V | tail -1 | awk '{print $2}' | sed 's/refs\\/tags\\/\\(.*\\)/\\1/' | sed 's/\\^{}//' )" >> versions.log
+                    '''
+                    convertProps('versions.log')
+                    load('versions.log.groovy')
+                }
+            } catch (e) {
+                // Set build result
+                currentBuild.result = 'FAILURE'
+
+                // Report the exception
+                echo "Error: Exception from " + currentStage + ":"
+                echo e.getMessage()
+
+                // Throw the error
+                throw e
+            } finally {
+                echo "Gathered origin and openshift-ansible versions!"
+                if( fileExists("BUILD_ORIGIN") && (! fileExists("BUILD_OA") ) ) {
+                    echo "BUILD_ORIGIN FILE PRESENT "
+                    sh "rm -f BUILD_ORIGIN"
+                }
+                if( fileExists("BUILD_OA") && (! fileExists("BUILD_ORIGIN") ) ) {
+                    echo "BUILD_OA FILE PRESENT"
+                    sh "rm -f BUILD_OA"
+                }
+                if( fileExists("BUILD_OA") && fileExists("BUILD_ORIGIN") ) {
+                    echo "BUILD_ORIGIN AND BUILD_OA FILES PRESENT"
+                    sh "rm -f BUILD_ORIGIN"
+                    sh "rm -f BUILD_OA"
+                }
+                currentBuild.displayName = "origin-${env.ORIGIN_VERSION} - ${env.OA_VERSION}"
+                currentBuild.description = ''
+                currentBuild.description = currentBuild.description + "origin-${env.ORIGIN_VERSION} :: "
+                currentBuild.description += "${env.OA_VERSION}"
+                step([$class: 'ArtifactArchiver', allowEmptyArchive: true, artifacts: '*.log, *.groovy', fingerprint: true])
+            }
+        }
+    }
+}
+
+/**
+ * Convert bash shell properties to groovy
+ * shellFile - Pass a shell formatted properties file
+ */
+def convertProps(shellFile) {
+    def command = $/awk -F'=' '{print "env."$1"=\""$2"\""}' ${shellFile} > ${shellFile}.groovy/$
+    sh command
+
+    return "${shellFile}.groovy"
+}
