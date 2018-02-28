@@ -14,19 +14,21 @@
     cbs_target: paas7-openshift-future-el7
   when: bleeding_edge|bool == true
 
-- name: "cbs build target for {{ project }} from srpm"
-  shell: "cbs build --wait {{ cbs_target }} {{ srpm }}"
-  args:
-    chdir: "{{ openshift_repo_path }}"
-  register: cbs_results
+- name: scratch setting ON
+  set_fact:
+    scratch_setting: --scratch
+  when: scratch|bool == true
+
+- name: scratch setting OFF
+  set_fact:
+    scratch_setting: ''
   when: scratch|bool == false
 
-- name: "cbs build scratch target for {{ project }} from srpm"
-  shell: "cbs build --wait --scratch {{ cbs_target }} {{ srpm }}"
+- name: "cbs build target for {{ project }} from srpm"
+  shell: "cbs build --wait {{ scratch_setting }} {{ cbs_target }} {{ srpm }}"
   args:
     chdir: "{{ openshift_repo_path }}"
   register: cbs_results
-  when: scratch|bool == true
 
 - debug:
     msg: "{{ cbs_results.stdout }}"
