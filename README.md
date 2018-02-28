@@ -81,8 +81,18 @@ JenkinsTrigger to build official releases of origin and openshift-ansible.
 Otherwise it builds every hour of the master of both origin and openshift-ansible
 to the paas7-openshift-future-el7 target.
 
+#### Parameters
+
+* ORIGIN_VERSION - current default and ex. v3.9.0-alpha.4 
+* OA_VERSION - current default and ex. openshift-ansible-3.9.0-0.53.0
+* BUILD_TARGET - current default is '' 
+* SCRATCH - current default = true
+* BE - current default = true
+* BUILD_ORIGIN - current default = true
+* BUILD_OA - current default = true
+
 ## Notes
 
 Everything in the archived directory is what used to be used to build, test and deliver.
-Since Openshift already creates clusters and runs e2e conformance tests it would be redundant<br>
-do it again so now we build source RPMs from the release tag and create an official build
+Since Openshift already creates clusters and runs e2e conformance tests it would be redundant
+do it again so now we build source RPMs from the release tag and create an official build.

@@ -12,6 +12,7 @@ node (env.PAAS_SLAVE) {
     def currentStage = ""
     ansiColor('xterm') {
         timestamps {
+            //deleteDir()
             try {
                 currentStage = 'PaaS-CI-CD-Trigger'
                 stage(currentStage) {
@@ -52,17 +53,48 @@ node (env.PAAS_SLAVE) {
             } finally {
                 echo "Gathered origin and openshift-ansible versions!"
                 if( fileExists("BUILD_ORIGIN") && (! fileExists("BUILD_OA") ) ) {
-                    echo "BUILD_ORIGIN FILE PRESENT "
+                    echo "BUILD ORIGIN PROJECT ONLY! "
+                    build job: 'paas-ci-cd',
+                            parameters: [
+                                    string(name: 'ORIGIN_VERSION', value: "${env.ORIGIN_VERSION}"),
+                                    string(name: 'OA', value: "${env.OA_VERSION}"),
+                                    booleanParam(name: 'SCRATCH', value: false),
+                                    booleanParam(name: 'BE', value: false),
+                                    booleanParam(name: 'BUILD_ORIGIN', value: true),
+                                    booleanParam(name: 'BUILD_OA', value: false)
+                            ],
+                            wait: true
                     sh "rm -f BUILD_ORIGIN"
                 }
                 if( fileExists("BUILD_OA") && (! fileExists("BUILD_ORIGIN") ) ) {
-                    echo "BUILD_OA FILE PRESENT"
+                    echo "BUILD OA PROJECT ONLY!"
+                    build job: 'paas-ci-cd',
+                            parameters: [
+                                    string(name: 'ORIGIN_VERSION', value: "${env.ORIGIN_VERSION}"),
+                                    string(name: 'OA', value: "${env.OA_VERSION}"),
+                                    booleanParam(name: 'SCRATCH', value: false),
+                                    booleanParam(name: 'BE', value: false),
+                                    booleanParam(name: 'BUILD_ORIGIN', value: false),
+                                    booleanParam(name: 'BUILD_OA', value: true)
+                            ],
+                            wait: true
                     sh "rm -f BUILD_OA"
                 }
                 if( fileExists("BUILD_OA") && fileExists("BUILD_ORIGIN") ) {
-                    echo "BUILD_ORIGIN AND BUILD_OA FILES PRESENT"
+                    echo "BUILD ORIGIN AND BUILD OA PROJECTS"
+                    build job: 'paas-ci-cd',
+                            parameters: [
+                                    string(name: 'ORIGIN_VERSION', value: "${env.ORIGIN_VERSION}"),
+                                    string(name: 'OA', value: "${env.OA_VERSION}"),
+                                    booleanParam(name: 'SCRATCH', value: false),
+                                    booleanParam(name: 'BE', value: false),
+                                    booleanParam(name: 'BUILD_ORIGIN', value: true),
+                                    booleanParam(name: 'BUILD_OA', value: true)
+                            ],
+                            wait: true
                     sh "rm -f BUILD_ORIGIN"
                     sh "rm -f BUILD_OA"
+
                 }
                 currentBuild.displayName = "origin-${env.ORIGIN_VERSION} - ${env.OA_VERSION}"
                 currentBuild.description = ''
