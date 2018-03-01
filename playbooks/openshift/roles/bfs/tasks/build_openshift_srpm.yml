@@ -43,7 +43,7 @@
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^Version:.*$"
-    line: "Version:        {{ origin_version.split('-')[0] }}"
+    line: "Version:        {{ origin_version.split('-')[0] | regex_replace('v')}}"
     backrefs: yes
     state: present
   when: git_log.stdout == ""
