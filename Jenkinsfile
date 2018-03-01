@@ -80,7 +80,11 @@ node (env.PAAS_SLAVE) {
                 currentStage = 'Build-Openshift-Ansbile-SRPM'
                 stage(currentStage){
                     if ("${env.BUILD_OA}" == "true") {
-                        currentBuild.displayName += " :: ${OA_BRANCH}"
+                        if ("${env.BE}" == "true") {
+                            currentBuild.displayName += " :: openshift-ansible - ${OA_BRANCH}"
+                        } else {
+                            currentBuild.displayName += " :: ${OA_BRANCH}"
+                        }
                         bfs(currentStage, 'openshift-ansible')
                     } else {
                         echo "NOT Building openshift-ansible"
