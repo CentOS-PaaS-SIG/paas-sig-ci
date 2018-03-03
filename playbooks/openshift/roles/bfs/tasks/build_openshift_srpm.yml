@@ -52,7 +52,7 @@
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^Release:.*$"
-    line: "Release:        0.{{ origin_version | regex_replace('-', '.') | regex_replace('v') }}%{package_dist}"
+    line: "Release:        0.{{ origin_version.split('-')[1] }}%{package_dist}"
     backrefs: yes
     state: present
 
