@@ -48,13 +48,23 @@
     state: present
   when: git_log.stdout == ""
 
-- name: update git release in origin.spec
+- name: update git release in origin.spec for Alpha or RC version
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^Release:.*$"
-    line: "Release:        0.{{ origin_version | regex_replace('-', '.') | regex_replace('v') }}%{package_dist}"
+    line: "Release:        0.{{ origin_version.split('-')[1] }}%{package_dist}"
     backrefs: yes
     state: present
+  when: origin_version.split('-')[1] is defined
+
+- name: update git release in origin.spec for official release
+  lineinfile:
+    dest: "{{ openshift_repo_path }}/origin.spec"
+    regexp: "^Release:.*$"
+    line: "Release:        1%{package_dist}"
+    backrefs: yes
+    state: present
+  when: origin_version.split('-')[1] is not defined
 
 - name: git commit changes locally
   shell: git commit -m "Fixup spec file - {{ origin_version }}" origin.spec
