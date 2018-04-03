@@ -1,9 +1,12 @@
 ---
 - include: cleanup_bfs.yml
   when: "cleanup|bool == true"
+
 - include: clone_from_github.yml
+
 - include: build_openshift_srpm.yml
   when: "project == 'origin'"
+
 - include: build_openshift-ansible_srpm.yml
   when: "project == 'openshift-ansible'"
 

@@ -1,3 +1,4 @@
+---
 # version to setup of origin
 ## Note: originally we added the v to the version, but for consistency this should be the exact version
 ## ex. 3.10.0-alpha.0 becomes v3.10.0-alpha.0
@@ -33,7 +34,9 @@
   shell: "git checkout {{ oa_version }}"
   args:
     chdir: "{{ openshift_repo_path }}"
-  when: (git_log.stdout == "" and bleeding_edge|bool == false)
+  when:
+    - git_log.stdout == ""
+    - bleeding_edge | bool == false
 
 - name: update version of origin
   lineinfile:

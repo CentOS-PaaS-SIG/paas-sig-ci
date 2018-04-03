@@ -1,3 +1,4 @@
+---
 - name: enable CentOS Extras repo
   template:
     src: roles/common/templates/centos7-extras-repo.j2

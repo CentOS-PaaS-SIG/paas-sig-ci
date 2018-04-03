@@ -1,5 +1,8 @@
+---
 - name: get epel RPM signing key
-  rpm_key: state=present key=https://getfedora.org/static/352C64E5.txt
+  rpm_key:
+    state: present
+    key: https://getfedora.org/static/352C64E5.txt
 
 - name: enable epel repo
   template:

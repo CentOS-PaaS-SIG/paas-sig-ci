@@ -1,7 +1,11 @@
+---
 - name: "Create {{ openshift_repo_path }}"
-  file: path={{ openshift_repo_path }} state=directory
+  file:
+    path: {{ openshift_repo_path }}
+    state: directory
 
-- stat: path="{{ openshift_repo_path }}.git/"
+- stat:
+    path: "{{ openshift_repo_path }}.git/"
   register: dot_git_path
 
 - name: "git clone {{ project }}"
@@ -11,4 +15,5 @@
     clone: yes
     update: yes
     accept_hostkey: yes
-  when: dot_git_path.stat.isdir is undefined or dot_git_path.stat.isdir == False
+  when: (dot_git_path.stat.isdir is undefined) or
+    (dot_git_path.stat.isdir == False)
