@@ -1,8 +1,11 @@
 ---
 # tasks file for cbs
+
 - include: install_cbs_pkgs.yml
 #  when: "'repo_host' in group_names"
+
 - include: copy_cbs_certs.yml
 #  when: "'repo_host' in group_names"
+
 - include: cbs_build_srpms.yml
 #  when: "'repo_host' in group_names"

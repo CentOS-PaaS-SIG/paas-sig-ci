@@ -12,17 +12,17 @@
 - name: set cbs_target to paas7-openshift-future-el7 for bleeding_edge
   set_fact:
     cbs_target: paas7-openshift-future-el7
-  when: bleeding_edge|bool == true
+  when: bleeding_edge | bool == true
 
 - name: scratch setting ON
   set_fact:
     scratch_setting: --scratch
-  when: scratch|bool == true
+  when: scratch | bool == true
 
 - name: scratch setting OFF
   set_fact:
     scratch_setting: ''
-  when: scratch|bool == false
+  when: scratch | bool == false
 
 - name: "cbs build target for {{ project }} from srpm"
   shell: "cbs build --wait {{ scratch_setting }} {{ cbs_target }} {{ srpm }}"
@@ -64,4 +64,3 @@
     src: "{{ openshift_repo_path }}/cbs_taskid_{{ project }}.groovy"
     dest: "{{ lookup('env','PWD') }}/cbs_taskid_{{ project }}.groovy"
     flat: yes
-
