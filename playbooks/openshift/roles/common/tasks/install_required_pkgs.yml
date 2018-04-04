@@ -4,7 +4,7 @@
 
 - name: update all packages
   yum:
-    name: *
+    name: "*"
     state: latest
 
 - name: Install packages on node
