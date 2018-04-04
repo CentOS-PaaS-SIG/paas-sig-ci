@@ -1,7 +1,7 @@
 ---
 - name: "Create {{ openshift_repo_path }}"
   file:
-    path: {{ openshift_repo_path }}
+    path: "{{ openshift_repo_path }}"
     state: directory
 
 - stat:
