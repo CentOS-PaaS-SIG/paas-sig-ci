@@ -31,7 +31,7 @@
 
 - name: checkout openshift-ansible version
   #shell: "git checkout {{ project }}-{{ oa_version }}.{{ LATEST_TAG.stdout }}"
-  shell: "git checkout {{ oa_version }}"
+  shell: git checkout {{ oa_version }}
   args:
     chdir: "{{ openshift_repo_path }}"
   when:
