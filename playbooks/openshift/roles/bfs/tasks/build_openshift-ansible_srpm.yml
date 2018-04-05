@@ -21,7 +21,7 @@
     - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
     #- { prop: 'latest_tag', value: "{{ LATEST_TAG.stdout }}" }
 
-- name: check if changes have been applied
+- name: check if changes have been applied to origin - {{ oa_version }}
   #shell: "git log -n1 | grep 'Update variants for origin - {{ LATEST_TAG.stdout }}'"
   shell: "git log -n1 | grep 'Update variants for origin - {{ oa_version }}'"
   args:
@@ -29,7 +29,7 @@
   ignore_errors: yes
   register: git_log
 
-- name: checkout openshift-ansible version
+- name: checkout openshift-ansible version - {{ oa_version }}
   #shell: "git checkout {{ project }}-{{ oa_version }}.{{ LATEST_TAG.stdout }}"
   shell: "git checkout {{ oa_version }}"
   args:
@@ -56,7 +56,7 @@
     state: present
   when: git_log.stdout == ""
 
-- name: git commit updated variants for origin
+- name: git commit updated variants for origin - {{ oa_version }}
   #shell: git commit -m "Update variants for origin - {{ LATEST_TAG.stdout }}" utils/src/ooinstall/variants.py
   shell: git commit -m "Update variants for origin - {{ oa_version }}" utils/src/ooinstall/variants.py
   args:

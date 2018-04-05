@@ -12,14 +12,14 @@
     - { prop: 'origin_version', value: "{{ origin_version }}" }
     - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
 
-- name: Check if changes have already been applied
+- name: check if changes have already been applied
   shell: "git log -n1 | grep 'Fixup spec file - {{ origin_version }}'"
   args:
     chdir: "{{ openshift_repo_path }}"
   ignore_errors: yes
   register: git_log
 
-- name: checkout origin version
+- name: checkout origin version - {{ origin_version }}
   shell: git checkout {{ origin_version }}
   args:
     chdir: "{{ openshift_repo_path }}"
@@ -27,7 +27,7 @@
     - git_log.stdout == ""
     - not bleeding_edge
 
-- name: tag origin version
+- name: delete tag origin version - {{ origin_version }}
   shell: git tag -d {{ origin_version }}
   args:
     chdir: "{{ openshift_repo_path }}"
@@ -71,7 +71,7 @@
     state: present
   when: origin_version.split('-')[1] is not defined
 
-- name: git commit changes locally
+- name: git commit changes locally for origin - {{ origin_version }}
   shell: git commit -m "Fixup spec file - {{ origin_version }}" origin.spec
   args:
     chdir: "{{ openshift_repo_path }}"
