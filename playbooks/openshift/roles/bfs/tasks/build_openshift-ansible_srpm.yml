@@ -41,7 +41,7 @@
 - name: update version of origin
   lineinfile:
     dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
-    regexp: "Version\\('1\\.2', 'origin'\\).*"
+    regexp: "Version\\('\\d+\\.\\d+', 'origin'\\).*"
     line: "                     Version('{{ origin_version.split('.')[0] | regex_replace('^v') }}.{{ origin_version.split('.')[1] }}', 'origin')"
     backrefs: yes
     state: present
