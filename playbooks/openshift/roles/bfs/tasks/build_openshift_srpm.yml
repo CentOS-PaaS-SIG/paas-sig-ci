@@ -38,6 +38,14 @@
     - git_log.stdout == ""
     - not ( bleeding_edge | bool )
 
+- name: patch tito's common.py since origin 3.7 is broken
+  copy:
+    src: "{{ role_path }}/files/common.py"
+    dest: "{{ openshift_repo_path }}/.tito/lib/origin/common.py"
+  when:
+    - origin_version.split('-')[0] | regex_replace('v') | version_compare('3.7', '>=', strict=True)
+    - origin_version.split('-')[0] | regex_replace('v') | version_compare('3.8', '<', strict=True)
+
 - name: update git vars in origin.spec
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
