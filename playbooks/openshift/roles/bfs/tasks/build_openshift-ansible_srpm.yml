@@ -35,8 +35,9 @@
   args:
     chdir: "{{ openshift_repo_path }}"
   when:
+    # TODO come back to this
     - git_log.stdout == ""
-    - bleeding_edge | bool == false
+    - not ( bleeding_edge | bool )
 
 - name: update version of origin
   lineinfile:
@@ -45,6 +46,7 @@
     line: "                     Version('{{ origin_version.split('.')[0] | regex_replace('^v') }}.{{ origin_version.split('.')[1] }}', 'origin')"
     backrefs: yes
     state: present
+  # TODO come back to this
   when: git_log.stdout == ""
 
 - name: update variant
@@ -54,6 +56,7 @@
     line: "DISPLAY_VARIANTS = (origin, OSE, REG,)"
     backrefs: yes
     state: present
+  # TODO come back to this
   when: git_log.stdout == ""
 
 - name: git commit updated variants for origin - {{ oa_version }}
@@ -61,4 +64,5 @@
   shell: git commit -m "Update variants for origin - {{ oa_version }}" utils/src/ooinstall/variants.py
   args:
     chdir: "{{ openshift_repo_path }}"
+  # TODO come back to this
   when: git_log.stdout == ""
