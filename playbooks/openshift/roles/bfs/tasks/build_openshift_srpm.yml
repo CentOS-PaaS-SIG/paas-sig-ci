@@ -62,7 +62,7 @@
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^Release:.*$"
-    line: "Release:        0.{{ origin_version.split('-')[1] }}%{package_dist}"
+    line: "Release:        0.{{ origin_version.split('-')[1] }}%{dist}"
     backrefs: yes
     state: present
   when: origin_version.split('-')[1] is defined
@@ -71,7 +71,7 @@
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^Release:.*$"
-    line: "Release:        1%{package_dist}"
+    line: "Release:        1%{dist}"
     backrefs: yes
     state: present
   when: origin_version.split('-')[1] is not defined
