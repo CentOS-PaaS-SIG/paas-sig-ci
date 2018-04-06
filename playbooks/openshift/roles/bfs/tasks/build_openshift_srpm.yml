@@ -25,8 +25,6 @@
   args:
     chdir: "{{ openshift_repo_path }}"
   when:
-    # TODO come back to this
-    - git_log.stdout == ""
     - not ( bleeding_edge | bool )
 
 - name: patch tito's common.py since origin 3.7 is broken
@@ -44,8 +42,6 @@
     line: "%global os_git_vars OS_GIT_VERSION={{ origin_version }} OS_GIT_COMMIT= OS_GIT_MAJOR={{ origin_version.split('.')[0] }} OS_GIT_MINOR={{ origin_version.split('.')[1] }}+ OS_GIT_TREE_STATE='clean' OS_GIT_CATALOG_VERSION=''"
     backrefs: yes
     state: present
-  # TODO come back to this
-  when: git_log.stdout == ""
 
 - name: update git version in origin.spec
   lineinfile:
@@ -54,8 +50,6 @@
     line: "Version:        {{ origin_version.split('-')[0] | regex_replace('v') }}"
     backrefs: yes
     state: present
-  # TODO come back to this
-  when: git_log.stdout == ""
 
 - name: update git release in origin.spec for Alpha or RC version
   lineinfile:
@@ -79,4 +73,3 @@
   shell: git commit -m "Fixup spec file - {{ origin_version }}" origin.spec
   args:
     chdir: "{{ openshift_repo_path }}"
-  when: git_log.stdout == ""
