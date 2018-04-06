@@ -29,15 +29,6 @@
     - git_log.stdout == ""
     - not ( bleeding_edge | bool )
 
-- name: delete tag origin version - {{ origin_version }}
-  shell: git tag -d {{ origin_version }}
-  args:
-    chdir: "{{ openshift_repo_path }}"
-  when:
-    # TODO come back to this
-    - git_log.stdout == ""
-    - not ( bleeding_edge | bool )
-
 - name: patch tito's common.py since origin 3.7 is broken
   copy:
     src: "{{ role_path }}/files/common.py"
