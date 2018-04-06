@@ -8,6 +8,15 @@
     path: "{{ openshift_repo_path }}.git/"
   register: dot_git_path
 
+- name: Setup default git configuration
+  git_config:
+    name="{{ item.name }}"
+    scope=global
+    value="{{ item.value }}"
+  with_items:
+    - {name: "user.name",  value: "PaaS-sig" }
+    - {name: "user.email", value: "pass-sig@centos.com" }
+
 - name: "git clone {{ project }}"
   git:
     repo: https://github.com/openshift/{{ project }}
