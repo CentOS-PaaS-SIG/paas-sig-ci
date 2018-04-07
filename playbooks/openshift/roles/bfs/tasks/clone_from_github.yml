@@ -1,14 +1,16 @@
 ---
+
 - name: "Create {{ openshift_repo_path }}"
   file:
     path: "{{ openshift_repo_path }}"
     state: directory
 
-- stat:
+- name: "Check path exists"
+  stat:
     path: "{{ openshift_repo_path }}.git/"
   register: dot_git_path
 
-- name: Setup default git configuration
+- name: "Setup default git configuration"
   git_config:
     name="{{ item.name }}"
     scope=global
@@ -17,7 +19,7 @@
     - {name: "user.name",  value: "sig-paas" }
     - {name: "user.email", value: "sig-paas@centosproject.org" }
 
-- name: "git clone {{ project }}"
+- name: "Git clone {{ project }}"
   git:
     repo: https://github.com/openshift/{{ project }}
     dest: "{{ openshift_repo_path }}"

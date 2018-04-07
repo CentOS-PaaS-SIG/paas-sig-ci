@@ -1,5 +1,6 @@
 ---
-- name: Install certs on repo_host in group_vars for cbs
+
+- name: "Install certs on repo_host in group_vars for cbs"
   copy:
     src: "~/{{ item }}"
     dest: /root

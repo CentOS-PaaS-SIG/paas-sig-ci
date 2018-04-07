@@ -22,7 +22,7 @@
     #- { prop: 'latest_tag', value: "{{ LATEST_TAG.stdout }}" }
 
 - block:
-    - name: check if changes have been applied to origin - {{ oa_version }}
+    - name: "Check if changes have been applied to origin - {{ oa_version }}"
       #shell: "git log -n1 | grep 'Update variants for origin - {{ LATEST_TAG.stdout }}'"
       shell: "git log -n1 | grep 'Update variants for origin - {{ oa_version }}'"
       args:
@@ -30,13 +30,13 @@
       ignore_errors: yes
       register: git_log
 
-    - name: checkout openshift-ansible version - {{ oa_version }}
+    - name: "Checkout openshift-ansible version - {{ oa_version }}"
       #shell: "git checkout {{ project }}-{{ oa_version }}.{{ LATEST_TAG.stdout }}"
       command: git checkout {{ oa_version }}
       args:
         chdir: "{{ openshift_repo_path }}"
 
-    - name: update version of origin
+    - name: "Update version of origin"
       lineinfile:
         dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
         regexp: "Version\\('\\d+\\.\\d+', 'origin'\\).*"
@@ -44,7 +44,7 @@
         backrefs: yes
         state: present
 
-    - name: update variant
+    - name: "Update variant"
       lineinfile:
         dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
         regexp: "^DISPLAY_VARIANTS =.*"
@@ -52,7 +52,7 @@
         backrefs: yes
         state: present
 
-    - name: git commit updated variants for origin - {{ oa_version }}
+    - name: "Git commit updated variants for origin - {{ oa_version }}"
       #shell: git commit -m "Update variants for origin - {{ LATEST_TAG.stdout }}" utils/src/ooinstall/variants.py
       shell: git commit -m "Update variants for origin - {{ oa_version }}" utils/src/ooinstall/variants.py
       args:

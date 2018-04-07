@@ -2,12 +2,12 @@
 # Set a var with packages to install as below
 # which is what is currently in defaults/main.yml
 
-- name: update all packages
+- name: "Update all packages"
   yum:
     name: "*"
     state: latest
 
-- name: Install packages on node
+- name: "Install packages on node"
   yum:
     name: "{{ item }}"
     state: present
