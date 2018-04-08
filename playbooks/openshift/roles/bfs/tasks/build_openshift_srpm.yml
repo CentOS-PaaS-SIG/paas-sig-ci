@@ -9,7 +9,7 @@
     msg: "PaaS-sig Props: {{ item.prop }} [ {{ item.value }} ]"
   with_items:
     - { prop: 'project', value: "{{ project }}" }
-    - { prop: 'origin_version', value: "{{ origin_version }}" }
+    - { prop: 'origin_version', value: "{{ origin_version if not bleeding_edge | bool else 'master' }}" }
     - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
 
 # TODO come back to this
