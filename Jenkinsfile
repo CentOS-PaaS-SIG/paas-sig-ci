@@ -1,6 +1,5 @@
-env.ANSIBLE_SSH_CONTROL_PATH = "%(directory)s/%%h-%%r"
-env.ANSIBLE_HOST_KEY_CHECKING = false
-env.ANSIBLE_FORCE_COLOR = true
+env.PYTHONUNBUFFERED = 1
+env.ANSIBLE_CONFIG = '${WORKSPACE}/paas-ci/ansible.cfg'
 env.PAAS_SLAVE = "paas-sig-ci-slave01"
 env.BFS_PB = 'paas-ci/playbooks/openshift/bfs.yml'
 env.CBS_PB = 'paas-ci/playbooks/openshift/cbs.yml'
@@ -151,16 +150,16 @@ def duffyNode (String stage, String action) {
     sh '''
         #!/bin/bash
         set -xeuo pipefail
-    
+
         if [ "${ACTION}" == "get" ]; then
             cico node get
             cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $1}' > ${WORKSPACE}/duffy_host.inventory
             cico inventory -c hostname -c comment -f csv --quote none 2>/dev/null | tail -1 | awk -F',' '{print $2}' > ${WORKSPACE}/duffy_ssid.inventory
             DUFFY_HOST=$( cat ${WORKSPACE}/duffy_host.inventory )
-            sed -i "s/${DUFFY_HOST}//g" ~/.ssh/known_hosts    
+            sed -i "s/${DUFFY_HOST}//g" ~/.ssh/known_hosts
         else
             DUFFY_SSID=$( cat ${WORKSPACE}/duffy_ssid.inventory )
-            cico node done ${DUFFY_SSID} 
+            cico node done ${DUFFY_SSID}
         fi
     '''
 }
@@ -196,7 +195,7 @@ def bfs (String stage, String project) {
     sh '''
         #!/bin/bash
         set -xeuo pipefail
-    
+
         # see what we have in terms of inventory
         ${BFS_COMMAND}
     '''
