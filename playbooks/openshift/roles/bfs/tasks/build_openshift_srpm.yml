@@ -9,25 +9,25 @@
     msg: "PaaS-sig Props: {{ item.prop }} [ {{ item.value }} ]"
   with_items:
     - { prop: 'project', value: "{{ project }}" }
-    - { prop: 'origin_version', value: "{{ origin_version }}" }
+    - { prop: 'origin_version', value: "{{ origin_version if not bleeding_edge | bool else 'master' }}" }
     - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
 
 # TODO come back to this
-- name: check if changes have already been applied
+- name: "Check if changes have already been applied"
   shell: git log -n1 | grep "Fixup spec file - {{ origin_version }}"
   args:
     chdir: "{{ openshift_repo_path }}"
   ignore_errors: yes
   register: git_log
 
-- name: checkout origin version - {{ origin_version }}
+- name: "Checkout origin version - {{ origin_version }}"
   command: git checkout {{ origin_version }}
   args:
     chdir: "{{ openshift_repo_path }}"
   when:
     - not ( bleeding_edge | bool )
 
-- name: patch tito's common.py since origin 3.7 is broken
+- name: "Patch tito's common.py since origin 3.7 is broken"
   copy:
     src: "{{ role_path }}/files/common.py"
     dest: "{{ openshift_repo_path }}/.tito/lib/origin/common.py"
@@ -35,7 +35,7 @@
     - origin_version.split('-')[0] | regex_replace('v') | version_compare('3.7', '>=', strict=True)
     - origin_version.split('-')[0] | regex_replace('v') | version_compare('3.8', '<', strict=True)
 
-- name: update git vars in origin.spec
+- name: "Update git vars in origin.spec"
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^%global os_git_vars .*$"
@@ -43,7 +43,7 @@
     backrefs: yes
     state: present
 
-- name: update git version in origin.spec
+- name: "Update git version in origin.spec"
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^Version:.*$"
@@ -51,7 +51,7 @@
     backrefs: yes
     state: present
 
-- name: update git release in origin.spec for Alpha or RC version
+- name: "Update git release in origin.spec for Alpha or RC version"
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^Release:.*$"
@@ -60,7 +60,7 @@
     state: present
   when: origin_version.split('-')[1] is defined
 
-- name: update git release in origin.spec for official release
+- name: "Update git release in origin.spec for official release"
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^Release:.*$"
@@ -69,7 +69,7 @@
     state: present
   when: origin_version.split('-')[1] is not defined
 
-- name: git commit changes locally for origin - {{ origin_version }}
+- name: "Git commit changes locally for origin - {{ origin_version }}"
   command: git commit -m "Fixup spec file - {{ origin_version }}" origin.spec
   args:
     chdir: "{{ openshift_repo_path }}"

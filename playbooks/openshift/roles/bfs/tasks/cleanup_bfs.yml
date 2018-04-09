@@ -1,5 +1,6 @@
 ---
-- name: remove source for "{{ openshift_repo_path }}"
+
+- name: "Remove source for {{ openshift_repo_path }}"
   file:
     path: "{{ openshift_repo_path }}"
     state: absent

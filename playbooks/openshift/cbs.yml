@@ -1,4 +1,5 @@
 ---
+
 - hosts: all
   become: '{{ become | default("no") }}'
   become_user: '{{ become_user | default("root") }}'
