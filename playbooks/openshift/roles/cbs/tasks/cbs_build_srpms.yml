@@ -26,7 +26,7 @@
   when: scratch | bool == false
 
 - name: "Cbs build target for {{ project }} from srpm"
-  command: cbs build --wait {{ scratch_setting | quote }} {{ cbs_target | quote }} {{ srpm | quote }}
+  command: cbs build --wait {{ scratch_setting }} {{ cbs_target }} {{ srpm }}
   args:
     chdir: "{{ openshift_repo_path }}"
   register: cbs_results
