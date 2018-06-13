@@ -5,11 +5,13 @@
 # git ls-remote --tags https://github.com/openshift/origin | sort -t '/' -k 3 -V
 # | tail -1 | awk '{print $2}' | sed 's/refs\/tags\/\(.*\)/\1/' | sed 's/\^{}//'
 
+- name: `
+
 - debug:
     msg: "PaaS-sig Props: {{ item.prop }} [ {{ item.value }} ]"
   with_items:
     - { prop: 'project', value: "{{ project }}" }
-    - { prop: 'origin_version', value: "{{ origin_version if not bleeding_edge | bool else 'master' }}" }
+    - { prop: 'origin_version', value: "{{ origin_version }}" }
     - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
 
 # TODO come back to this
@@ -39,7 +41,14 @@
   lineinfile:
     dest: "{{ openshift_repo_path }}/origin.spec"
     regexp: "^%global os_git_vars .*$"
-    line: "%global os_git_vars OS_GIT_VERSION={{ origin_version }} OS_GIT_COMMIT= OS_GIT_MAJOR={{ origin_version.split('.')[0] }} OS_GIT_MINOR={{ origin_version.split('.')[1] }}+ OS_GIT_TREE_STATE='clean' OS_GIT_CATALOG_VERSION=''"
+    line: >
+        "%global os_git_vars
+                 OS_GIT_VERSION={{ origin_version }}
+                 OS_GIT_COMMIT=
+                 OS_GIT_MAJOR={{ origin_version.split('.')[0] }}
+                 OS_GIT_MINOR={{ origin_version.split('.')[1] }}+
+                 OS_GIT_TREE_STATE='clean'
+                 OS_GIT_CATALOG_VERSION=''"
     backrefs: yes
     state: present
 
