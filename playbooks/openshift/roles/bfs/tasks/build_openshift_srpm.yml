@@ -5,8 +5,6 @@
 # git ls-remote --tags https://github.com/openshift/origin | sort -t '/' -k 3 -V
 # | tail -1 | awk '{print $2}' | sed 's/refs\/tags\/\(.*\)/\1/' | sed 's/\^{}//'
 
-- name: `
-
 - debug:
     msg: "PaaS-sig Props: {{ item.prop }} [ {{ item.value }} ]"
   with_items:
