@@ -12,14 +12,6 @@
     - { prop: 'origin_version', value: "{{ origin_version }}" }
     - { prop: 'bleeding_edge', value: "{{ bleeding_edge }}" }
 
-# TODO come back to this
-- name: "Check if changes have already been applied"
-  shell: git log -n1 | grep "Fixup spec file - {{ origin_version }}"
-  args:
-    chdir: "{{ openshift_repo_path }}"
-  ignore_errors: yes
-  register: git_log
-
 - name: "Checkout origin version - {{ origin_version }}"
   command: git checkout {{ origin_version }}
   args:
