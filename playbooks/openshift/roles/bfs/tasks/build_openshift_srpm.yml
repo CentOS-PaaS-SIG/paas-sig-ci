@@ -72,3 +72,6 @@
   command: git commit -m "Fixup spec file - {{ origin_version }}" origin.spec
   args:
     chdir: "{{ openshift_repo_path }}"
+
+- namde: Debug origin spec file
+  command: rpm -q --specfile /root/origin/origin.spec
