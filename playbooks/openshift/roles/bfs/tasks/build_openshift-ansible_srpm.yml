@@ -22,14 +22,6 @@
     #- { prop: 'latest_tag', value: "{{ LATEST_TAG.stdout }}" }
 
 - block:
-    - name: "Check if changes have been applied to origin - {{ oa_version }}"
-      #shell: "git log -n1 | grep 'Update variants for origin - {{ LATEST_TAG.stdout }}'"
-      shell: "git log -n1 | grep 'Update variants for origin - {{ oa_version }}'"
-      args:
-        chdir: "{{ openshift_repo_path }}"
-      ignore_errors: yes
-      register: git_log
-
     - name: "Checkout openshift-ansible version - {{ oa_version }}"
       #shell: "git checkout {{ project }}-{{ oa_version }}.{{ LATEST_TAG.stdout }}"
       command: git checkout {{ oa_version }}
