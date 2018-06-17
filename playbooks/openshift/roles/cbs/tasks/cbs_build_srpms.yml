@@ -10,11 +10,6 @@
   set_fact:
     srpm: "{{ tito_output_srpm.stdout }}"
 
-- name: "Set cbs_target to paas7-openshift-future-el7 for bleeding_edge"
-  set_fact:
-    cbs_target: paas7-openshift-future-el7
-  when: bleeding_edge | bool == true
-
 - name: "Scratch setting ON"
   set_fact:
     scratch_setting: --scratch
@@ -30,6 +25,14 @@
   args:
     chdir: "{{ openshift_repo_path }}"
   register: cbs_results
+  when: bleeding_edge | bool == false
+
+- name: "Cbs build target for {{ project }} from srpm - only x86_64 arch when BE"
+  command: cbs build --wait {{ scratch_setting }} --arch-override=x86_64 {{ cbs_target }} {{ srpm }}
+  args:
+    chdir: "{{ openshift_repo_path }}"
+  register: cbs_results
+  when: bleeding_edge | bool == true
 
 - debug:
     msg: "{{ cbs_results.stdout }}"

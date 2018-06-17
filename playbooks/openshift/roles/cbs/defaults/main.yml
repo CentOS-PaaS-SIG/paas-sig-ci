@@ -6,8 +6,5 @@ project: origin
 # Path to repo for {{ project }}
 openshift_repo_path: /root/{{ project }}
 
-# cbs target
-cbs_target: paas7-openshift-future-el7
-
 # scratch
 scratch: false
