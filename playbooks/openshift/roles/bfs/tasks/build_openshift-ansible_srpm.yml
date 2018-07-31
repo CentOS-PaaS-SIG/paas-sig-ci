@@ -27,27 +27,5 @@
       command: git checkout {{ oa_version }}
       args:
         chdir: "{{ openshift_repo_path }}"
-
-    - name: "Update version of origin"
-      lineinfile:
-        dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
-        regexp: "Version\\('\\d+\\.\\d+', 'origin'\\).*"
-        line: "                     Version('{{ origin_version.split('.')[0] | regex_replace('^v') }}.{{ origin_version.split('.')[1] }}', 'origin')"
-        backrefs: yes
-        state: present
-
-    - name: "Update variant"
-      lineinfile:
-        dest: "{{ openshift_repo_path }}/utils/src/ooinstall/variants.py"
-        regexp: "^DISPLAY_VARIANTS =.*"
-        line: "DISPLAY_VARIANTS = (origin, OSE, REG,)"
-        backrefs: yes
-        state: present
-
-    - name: "Git commit updated variants for origin - {{ oa_version }}"
-      #shell: git commit -m "Update variants for origin - {{ LATEST_TAG.stdout }}" utils/src/ooinstall/variants.py
-      shell: git commit -m "Update variants for origin - {{ oa_version }}" utils/src/ooinstall/variants.py
-      args:
-        chdir: "{{ openshift_repo_path }}"
   when:
     - not ( bleeding_edge | bool )
