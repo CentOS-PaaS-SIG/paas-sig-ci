@@ -3,7 +3,7 @@
 - name: "Get epel RPM signing key"
   rpm_key:
     state: present
-    key: https://getfedora.org/static/352C64E5.txt
+    key: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 
 - name: "Enable epel repo"
   template:
