@@ -11,7 +11,7 @@ project: origin
 # To find this out:
 # git ls-remote --tags https://github.com/openshift/origin | sort -t '/' -k 3 -V
 # | tail -1 | awk '{print $2}' | sed 's/refs\/tags\/\(.*\)/\1/' | sed 's/\^{}//'
-origin_version: v3.10.0-alpha.0
+origin_version: v3.10.0
 
 # version of openshift-ansible
 # Note: originally version was [0-9].[0-9], but for consistency use the full version
