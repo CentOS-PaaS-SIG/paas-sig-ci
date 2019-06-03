@@ -14,8 +14,8 @@ properties(
                 disableConcurrentBuilds(),
                 parameters(
                         [
-                                string(defaultValue: 'v3.10.0-alpha.0', description: 'origin version', name: 'ORIGIN_VERSION'),
-                                string(defaultValue: 'openshift-ansible-3.10.0-0.67.0', description: 'openshift-ansible version', name: 'OA_VERSION'),
+                                string(defaultValue: 'v3.11.0', description: 'origin version', name: 'ORIGIN_VERSION'),
+                                string(defaultValue: 'openshift-ansible-3.11.115-1', description: 'openshift-ansible version', name: 'OA_VERSION'),
                                 string(defaultValue: '', description: 'target in the CBS build system', name: 'BUILD_TARGET'),
                                 booleanParam(defaultValue: true, description: 'build in CBS as a scratch build', name: 'SCRATCH'),
                                 booleanParam(defaultValue: false, description: 'build from the master branch', name: 'BE'),
