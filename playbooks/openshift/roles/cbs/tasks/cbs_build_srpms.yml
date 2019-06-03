@@ -36,26 +36,6 @@
         cbs_taskid: "{{ cbs_results.stdout | regex_search(regexp,'\\1') }}"
       vars:
         regexp: '.*taskID=([0-9]+).*'
-  when: bleeding_edge | bool == false
-
-# Note: this block might not be required if we implement multi-arch
-- block:
-    - name: "Cbs build target for {{ project }} from srpm - only x86_64 arch when BE"
-      command: cbs build --wait {{ scratch_setting }} --arch-override=x86_64 {{ cbs_target }} {{ srpm }}
-      args:
-        chdir: "{{ openshift_repo_path }}"
-      register: cbs_results
-
-    - name: "Cbs build result output - only x86_64 arch when BE"
-      debug:
-        msg: "{{ cbs_results.stdout }}"
-
-    - name: "Set the cbs task id - only x86_64 arch when BE"
-      set_fact:
-        cbs_taskid: "{{ cbs_results.stdout | regex_search(regexp,'\\1') }}"
-      vars:
-        regexp: '.*taskID=([0-9]+).*'
-  when: bleeding_edge | bool == true
 
 - name: "Cbs_taskid"
   debug:
