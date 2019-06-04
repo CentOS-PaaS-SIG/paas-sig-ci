@@ -83,11 +83,11 @@ to the paas7-openshift-future-el7 target.
 
 #### Parameters
 
-* ORIGIN_VERSION - current default and ex. v3.9.0-alpha.4 
-* OA_VERSION - current default and ex. openshift-ansible-3.9.0-0.53.0
+* ORIGIN_VERSION - current default and ex. v3.11.0
+* OA_VERSION - current default and ex. openshift-ansible-3.11.115-1
 * BUILD_TARGET - current default is '' 
 * SCRATCH - current default = true
-* BE - current default = true
+* BE - current default = false
 * BUILD_ORIGIN - current default = true
 * BUILD_OA - current default = true
 
